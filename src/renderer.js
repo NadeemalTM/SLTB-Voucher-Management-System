@@ -1245,20 +1245,31 @@ function generatePDF() {
         });
 }
 
-// Generate PDF document
+// Generate PDF document matching SLTB official template
 function generatePDFDocument(jsPDF) {
     const doc = new jsPDF('p', 'mm', 'a4');
     const formData = collectFormData();
     
-    // Set font
-    doc.setFont('helvetica');
+    // Define page dimensions
+    const pageWidth = 210;
+    const pageHeight = 297;
+    const margin = 15;
     
-    // Header with logo space
-    doc.setFontSize(16);
+    // Header Section
+    doc.setLineWidth(0.5);
+    
+    // Logo placeholder (left side)
+    doc.rect(margin, margin, 25, 25);
+    doc.setFontSize(8);
+    doc.text('SLTB', margin + 12.5, margin + 12.5, { align: 'center' });
+    doc.text('LOGO', margin + 12.5, margin + 15, { align: 'center' });
+    
+    // Title section (center)
     doc.setFont('helvetica', 'bold');
-    // Add space for logo (you can add actual logo embedding here if needed)
-    doc.text('Sri Lanka Tea Board', 105, 20, { align: 'center' });
+    doc.setFontSize(16);
+    doc.text('Sri Lanka Tea Board', pageWidth/2, margin + 10, { align: 'center' });
     
+    // Get voucher title
     let title = '';
     switch (currentVoucherType) {
         case 'payment':
@@ -1275,102 +1286,239 @@ function generatePDFDocument(jsPDF) {
             break;
     }
     
-    doc.text(title, 105, 30, { align: 'center' });
+    doc.setFontSize(14);
+    doc.text(title, pageWidth/2, margin + 20, { align: 'center' });
     
-    // Voucher details
-    doc.setFontSize(12);
+    // Voucher No and Date boxes (top right)
+    const headerRight = pageWidth - margin - 60;
+    doc.rect(headerRight, margin, 60, 12);
+    doc.rect(headerRight, margin + 12, 60, 12);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Voucher No', headerRight + 2, margin + 8);
+    doc.text('Date', headerRight + 2, margin + 20);
+    
     doc.setFont('helvetica', 'normal');
+    doc.text(formData.formData.voucherNo || '', headerRight + 25, margin + 8);
+    doc.text(formData.formData.voucherDate || '', headerRight + 25, margin + 20);
     
-    let y = 50;
-    doc.text(`Voucher No: ${formData.formData.voucherNo || ''}`, 20, y);
-    doc.text(`Date: ${formData.formData.voucherDate || ''}`, 150, y);
-    y += 10;
+    // Main content area starts
+    let currentY = margin + 35;
     
-    doc.text(`SLTB Section: ${formData.formData.sltbSection || ''}`, 20, y);
-    doc.text(`File Reference: ${formData.formData.fileReference || ''}`, 150, y);
-    y += 10;
+    // Section and File Reference row
+    doc.rect(margin, currentY, pageWidth - 2*margin, 8);
+    doc.line(margin + 60, currentY, margin + 60, currentY + 8);
+    doc.line(pageWidth/2, currentY, pageWidth/2, currentY + 8);
     
-    doc.text(`Payable To: ${formData.formData.payableTo || ''}`, 20, y);
-    doc.text(`Expenditure Code: ${formData.formData.expenditureCode || ''}`, 150, y);
-    y += 20;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SLTB Section', margin + 2, currentY + 5);
+    doc.text('File Reference', pageWidth/2 + 2, currentY + 5);
     
-    // Content based on voucher type
-    if (currentVoucherType === 'payment' && formData.expenditures) {
-        // Expenditure table for payment vouchers
-        doc.setFont('helvetica', 'bold');
-        doc.text('Expenditure Details:', 20, y);
-        y += 10;
+    doc.setFont('helvetica', 'normal');
+    doc.text(formData.formData.sltbSection || '', margin + 62, currentY + 5);
+    doc.text(formData.formData.fileReference || '', pageWidth/2 + 52, currentY + 5);
+    
+    currentY += 8;
+    
+    // Payable To and Expenditure Code row
+    doc.rect(margin, currentY, pageWidth - 2*margin, 8);
+    doc.line(margin + 60, currentY, margin + 60, currentY + 8);
+    doc.line(pageWidth/2, currentY, pageWidth/2, currentY + 8);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Payable To', margin + 2, currentY + 5);
+    doc.text('Expenditure', pageWidth/2 + 2, currentY + 5);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(formData.formData.payee || formData.formData.payableTo || '', margin + 62, currentY + 5);
+    doc.text(formData.formData.expenditureCode || '', pageWidth/2 + 52, currentY + 5);
+    
+    currentY += 15;
+    
+    // Expenditure table or settlement details
+    if (currentVoucherType === 'advance-settlement') {
+        // Special layout for Advance Settlement Voucher
+        // Amount of Advance
+        doc.rect(margin, currentY, (pageWidth - 2*margin)/2, 10);
+        doc.rect((pageWidth - 2*margin)/2 + margin, currentY, (pageWidth - 2*margin)/2, 10);
         
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Amount of Advance', margin + 2, currentY + 6);
+        doc.text('Rs.', pageWidth - margin - 15, currentY + 6);
         doc.setFont('helvetica', 'normal');
-        formData.expenditures.forEach((exp, index) => {
-            if (exp.desc) {
-                doc.text(`${index + 1}. ${exp.desc}`, 20, y);
-                y += 5;
-                doc.text(`Rate: Rs. ${exp.rate || '0'} | Units: ${exp.units || '0'} | Amount: Rs. ${exp.amount || '0'}`, 25, y);
-                y += 10;
-            }
-        });
+        doc.text(formData.formData.amountAdvance || '', margin + 80, currentY + 6);
         
-        const total = document.getElementById('total-payment')?.textContent || '0.00';
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Total Payment: Rs. ${total}`, 20, y);
-        y += 20;
-    } else if (currentVoucherType === 'advance-settlement') {
-        // Settlement details
-        doc.setFont('helvetica', 'bold');
-        doc.text('Settlement Details:', 20, y);
-        y += 10;
+        currentY += 10;
         
+        // Amount spent
+        doc.rect(margin, currentY, (pageWidth - 2*margin)/2, 10);
+        doc.rect((pageWidth - 2*margin)/2 + margin, currentY, (pageWidth - 2*margin)/2, 10);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text('Amount spent as per attached Documents', margin + 2, currentY + 6);
+        doc.text('Rs.', pageWidth - margin - 15, currentY + 6);
         doc.setFont('helvetica', 'normal');
-        doc.text(`Amount of Advance: Rs. ${formData.formData.amountAdvance || '0'}`, 20, y);
-        y += 8;
-        doc.text(`Amount Spent: Rs. ${formData.formData.amountSpent || '0'}`, 20, y);
-        y += 8;
-        doc.text(`Balance Due/Refund: Rs. ${formData.formData.balanceDue || '0'}`, 20, y);
-        y += 20;
+        doc.text(formData.formData.amountSpent || '', margin + 120, currentY + 6);
+        
+        currentY += 10;
+        
+        // Balance due
+        doc.rect(margin, currentY, (pageWidth - 2*margin)/2, 10);
+        doc.rect((pageWidth - 2*margin)/2 + margin, currentY, (pageWidth - 2*margin)/2, 10);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text('Balance due / refund', margin + 2, currentY + 6);
+        doc.text('Rs.', pageWidth - margin - 15, currentY + 6);
+        doc.setFont('helvetica', 'normal');
+        doc.text(formData.formData.balanceDue || '', margin + 80, currentY + 6);
+        
+        currentY += 20;
     } else {
-        // Service description for advance payment and petty cash
-        if (formData.formData.serviceDescription) {
-            doc.setFont('helvetica', 'bold');
-            doc.text('Service Description:', 20, y);
-            y += 10;
-            
+        // Expenditure table for other vouchers
+        const tableHeight = 60;
+        const tableWidth = pageWidth - 2*margin;
+        
+        // Draw main expenditure table
+        doc.rect(margin, currentY, tableWidth, tableHeight);
+        
+        // Column divisions - matching template proportions
+        const col1Width = tableWidth * 0.5;
+        const col2Width = tableWidth * 0.15;
+        const col3Width = tableWidth * 0.15;
+        const col4Width = tableWidth * 0.2;
+        
+        doc.line(margin + col1Width, currentY, margin + col1Width, currentY + tableHeight);
+        doc.line(margin + col1Width + col2Width, currentY, margin + col1Width + col2Width, currentY + tableHeight);
+        doc.line(margin + col1Width + col2Width + col3Width, currentY, margin + col1Width + col2Width + col3Width, currentY + tableHeight);
+        
+        // Header row
+        doc.line(margin, currentY + 15, margin + tableWidth, currentY + 15);
+        
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Detailed description of service rendered,', margin + 2, currentY + 5);
+        doc.text('work executed or goods supplied and', margin + 2, currentY + 8);
+        doc.text('Certificate of Approving officer, where', margin + 2, currentY + 11);
+        
+        doc.text('Rate Rs.', margin + col1Width + 5, currentY + 8);
+        doc.text('Units or', margin + col1Width + col2Width + 5, currentY + 6);
+        doc.text('Months', margin + col1Width + col2Width + 5, currentY + 9);
+        doc.text('Amount Rs', margin + col1Width + col2Width + col3Width + 5, currentY + 8);
+        
+        // Content rows (if any expenditures exist)
+        if (formData.expenditures && formData.expenditures.length > 0) {
+            let rowY = currentY + 18;
             doc.setFont('helvetica', 'normal');
-            const lines = doc.splitTextToSize(formData.formData.serviceDescription, 170);
-            doc.text(lines, 20, y);
-            y += lines.length * 5 + 10;
+            doc.setFontSize(8);
             
-            doc.text(`Rate: Rs. ${formData.formData.rate || '0'}`, 20, y);
-            doc.text(`Units: ${formData.formData.units || '0'}`, 100, y);
-            y += 8;
-            doc.text(`Total Amount: Rs. ${formData.formData.totalPayment || '0'}`, 20, y);
-            y += 20;
+            formData.expenditures.forEach((exp, index) => {
+                if (exp.desc && exp.desc.trim() && rowY < currentY + tableHeight - 15) {
+                    const desc = exp.desc.substring(0, 80);
+                    doc.text(desc, margin + 2, rowY);
+                    doc.text(exp.rate || '0', margin + col1Width + 5, rowY);
+                    doc.text(exp.units || '0', margin + col1Width + col2Width + 5, rowY);
+                    doc.text(exp.amount || '0', margin + col1Width + col2Width + col3Width + 5, rowY);
+                    rowY += 5;
+                }
+            });
         }
+        
+        // Total row
+        doc.line(margin, currentY + tableHeight - 10, margin + tableWidth, currentY + tableHeight - 10);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('Total Payment Rs.', margin + col1Width + col2Width - 30, currentY + tableHeight - 5);
+        doc.text(formData.totalAmount || '0.00', margin + col1Width + col2Width + col3Width + 5, currentY + tableHeight - 5);
+        
+        currentY += tableHeight + 10;
     }
     
     // Approval section
+    const approvalWidth = (pageWidth - 2*margin) / 2;
+    const approvalHeight = 40;
+    
+    // Left column - Prepared by and Recommended by (First)
+    doc.rect(margin, currentY, approvalWidth, approvalHeight/2);
+    doc.rect(margin, currentY + approvalHeight/2, approvalWidth, approvalHeight/2);
+    
+    // Right column - Checked By and Recommended by (Second)
+    doc.rect(margin + approvalWidth, currentY, approvalWidth, approvalHeight/2);
+    doc.rect(margin + approvalWidth, currentY + approvalHeight/2, approvalWidth, approvalHeight/2);
+    
     doc.setFont('helvetica', 'bold');
-    doc.text('Approvals:', 20, y);
-    y += 10;
+    doc.setFontSize(10);
+    doc.text('Prepared by', margin + 2, currentY + 5);
+    doc.text('Checked By', margin + approvalWidth + 2, currentY + 5);
+    doc.text('Recommended by (First)', margin + 2, currentY + approvalHeight/2 + 5);
+    doc.text('Recommended by (Second)', margin + approvalWidth + 2, currentY + approvalHeight/2 + 5);
     
     doc.setFont('helvetica', 'normal');
-    doc.text(`Prepared by: ${formData.formData.preparedBy || ''}`, 20, y);
-    doc.text(`Checked by: ${formData.formData.checkedBy || ''}`, 110, y);
-    y += 10;
+    doc.text(formData.formData.preparedBy || '', margin + 2, currentY + 15);
+    doc.text(formData.formData.checkedBy || '', margin + approvalWidth + 2, currentY + 15);
+    doc.text(formData.formData.recommendedByFirst || '', margin + 2, currentY + approvalHeight/2 + 15);
+    doc.text(formData.formData.recommendedBySecond || '', margin + approvalWidth + 2, currentY + approvalHeight/2 + 15);
     
-    doc.text(`Recommended by (First): ${formData.formData.recommendedByFirst || ''}`, 20, y);
-    y += 8;
-    doc.text(`Recommended by (Second): ${formData.formData.recommendedBySecond || ''}`, 20, y);
-    y += 8;
-    doc.text(`Payment Approved by: ${formData.formData.paymentApprovedBy || ''}`, 20, y);
-    y += 8;
-    doc.text(`Voucher Certified by: ${formData.formData.voucherCertifiedBy || ''}`, 20, y);
+    currentY += approvalHeight + 5;
     
-    // Save PDF
-    const fileName = `${formData.formData.voucherNo || 'voucher'}_${currentVoucherType}.pdf`;
+    // Certification text
+    doc.setFontSize(8);
+    doc.text('I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly', margin, currentY);
+    doc.text('authorised and performed and that the payment of Rupees ________________and cents _______ is in accordance with', margin, currentY + 4);
+    doc.text('regulations*/ contract*/ fair and reasonable.', margin, currentY + 8);
+    
+    currentY += 15;
+    
+    // Final approval section
+    doc.rect(margin, currentY, approvalWidth, 20);
+    doc.rect(margin + approvalWidth, currentY, approvalWidth, 20);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Payment Approved By', margin + 2, currentY + 5);
+    doc.text('Voucher Certified By', margin + approvalWidth + 2, currentY + 5);
+    doc.text('(FR 137 Approval)', margin + 2, currentY + 8);
+    doc.text('(FR 138 Voucher Certification)', margin + approvalWidth + 2, currentY + 8);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(formData.formData.paymentApprovedBy || '', margin + 2, currentY + 15);
+    doc.text(formData.formData.voucherCertifiedBy || '', margin + approvalWidth + 2, currentY + 15);
+    
+    currentY += 25;
+    
+    // Documents section
+    doc.rect(margin, currentY, approvalWidth, 50);
+    doc.rect(margin + approvalWidth, currentY, approvalWidth, 50);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('Attached the Copies of following Documents', margin + 2, currentY + 5);
+    doc.text('Other Documents Attached', margin + approvalWidth + 2, currentY + 5);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    let docY = currentY + 10;
+    const documents = [
+        'Invoice', 'Board Approval', 'FR 136 Approval',
+        'DG/Adm/Procurment Approval', 'Good Received Note (GRN)',
+        'Good Acceptance Committee Report', 'Service Completed Report'
+    ];
+    
+    documents.forEach(docName => {
+        doc.text(`• ${docName}`, margin + 5, docY);
+        docY += 4;
+    });
+    
+    // Other documents
+    doc.text('• Other related documents', margin + approvalWidth + 5, currentY + 10);
+    
+    // Save PDF with proper filename
+    const fileName = `SLTB_${title.replace(/\s+/g, '_')}_${formData.formData.voucherNo || 'draft'}_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
     
-    showMessage('PDF generated successfully!', 'success');
+    showMessage('PDF generated successfully in SLTB official format!', 'success');
 }
 
 // Print voucher
@@ -1422,22 +1570,197 @@ function testAutoFill() {
 
 // Load defaults into current form manually
 function loadDefaultsToForm() {
-    // Reload defaults first to get latest values
-    loadDefaults();
+    try {
+        console.log('=== loadDefaultsToForm() called ===');
+        
+        // Reload defaults first to get latest values
+        loadDefaults();
+        console.log('Loaded defaultSettings:', defaultSettings);
+        
+        if (!defaultSettings || Object.keys(defaultSettings).length === 0) {
+            console.log('No default settings found');
+            showMessage('No default settings found. Please save defaults first in Default Settings page.', 'warning');
+            return;
+        }
+        
+        // Check localStorage directly
+        const stored = localStorage.getItem('sltb-defaults');
+        console.log('Direct localStorage check:', stored);
+        
+        // Apply defaults to current form
+        console.log('Starting form population...');
+        populateFormDefaultsSimplified();
+        
+        // Show success message
+        const count = Object.keys(defaultSettings).length;
+        showMessage(`Successfully loaded ${count} default values into form!`, 'success');
+        console.log('Manual load defaults completed successfully');
+        
+    } catch (error) {
+        console.error('Error in loadDefaultsToForm:', error);
+        showMessage('Error loading defaults: ' + error.message, 'error');
+    }
+}
+
+// Simplified populate function that won't cause freezing
+function populateFormDefaultsSimplified() {
+    console.log('Starting simplified form population with defaults:', defaultSettings);
     
     if (!defaultSettings || Object.keys(defaultSettings).length === 0) {
-        showMessage('No default settings found. Please set defaults first in Default Settings.', 'info');
+        console.log('No defaults to populate');
         return;
     }
     
-    // Apply defaults to current form
-    populateFormDefaults();
+    // Set today's date first
+    const dateInput = document.getElementById('voucher-date');
+    if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+        console.log('Set voucher date to today');
+    }
     
-    // Show success message
-    const count = Object.keys(defaultSettings).length;
-    showMessage(`Loaded ${count} default values into form!`, 'success');
+    Object.keys(defaultSettings).forEach(key => {
+        const value = defaultSettings[key];
+        if (!value || value.trim() === '') return;
+        
+        let element = null;
+        
+        // Strategy 1: Try by name attribute first (most common in voucher forms)
+        element = document.querySelector(`[name="${key}"]`);
+        
+        // Strategy 2: Try by ID
+        if (!element) {
+            element = document.getElementById(key);
+        }
+        
+        // Strategy 3: Try common ID patterns for default settings
+        if (!element) {
+            const commonIdMappings = {
+                'sltbSection': 'sltb-section',
+                'fileReference': 'file-reference',
+                'preparedBy': 'prepared-by',
+                'checkedBy': 'checked-by',
+                'approvedBy': 'approved-by',
+                'authorizedBy': 'authorized-by',
+                'recommendedByFirst': 'recommended-by-first',
+                'recommendedBySecond': 'recommended-by-second',
+                'paymentApprovedBy': 'payment-approved-by',
+                'voucherCertifiedBy': 'voucher-certified-by'
+            };
+            
+            const mappedId = commonIdMappings[key];
+            if (mappedId) {
+                element = document.getElementById(mappedId);
+            }
+        }
+        
+        // Strategy 4: Try input with placeholder matching (fallback)
+        if (!element) {
+            const possibleSelectors = [
+                `input[placeholder*="${key}"]`,
+                `input[name*="${key.toLowerCase()}"]`,
+                `select[name*="${key.toLowerCase()}"]`,
+                `textarea[name*="${key.toLowerCase()}"]`
+            ];
+            
+            for (const selector of possibleSelectors) {
+                try {
+                    element = document.querySelector(selector);
+                    if (element) break;
+                } catch (e) {
+                    // Continue if selector is invalid
+                }
+            }
+        }
+        
+        if (element) {
+            try {
+                console.log(`Found element for ${key}:`, element.tagName, element.name, element.id);
+                
+                if (element.tagName === 'SELECT') {
+                    // Check if option exists before setting
+                    const hasOption = Array.from(element.options).some(option => option.value === value);
+                    if (hasOption) {
+                        element.value = value;
+                        console.log(`✓ Set select ${key} to "${value}" (now: "${element.value}")`);
+                    } else {
+                        console.warn(`✗ Option "${value}" not found in select ${key}`);
+                        console.warn('Available options:', Array.from(element.options).map(o => o.value));
+                    }
+                } else {
+                    const oldValue = element.value;
+                    element.value = value;
+                    console.log(`✓ Set input ${key} from "${oldValue}" to "${value}" (now: "${element.value}")`);
+                }
+                
+                // Trigger change event to update any listeners
+                element.dispatchEvent(new Event('change', { bubbles: true }));
+                
+            } catch (error) {
+                console.warn(`✗ Error setting ${key}:`, error);
+            }
+        } else {
+            console.warn(`✗ Field not found for key: ${key}`);
+            console.warn('Searched for:', `[name="${key}"]`, `#${key}`);
+        }
+    });
     
-    // Optional: Log what was loaded for debugging
-    console.log('Manually loaded defaults to form:', defaultSettings);
+    console.log('✓ Simplified form population completed');
 }
+
+// Make sure the function is available globally
+window.loadDefaultsToForm = loadDefaultsToForm;
+
+// Test function to create sample defaults if none exist
+function createTestDefaults() {
+    const testDefaults = {
+        sltbSection: 'IT Section',
+        fileReference: 'SLTB/IT/2025/001',
+        preparedBy: 'John Doe',
+        checkedBy: 'Jane Smith',
+        recommendedByFirst: 'First Recommender',
+        recommendedBySecond: 'Second Recommender',
+        paymentApprovedBy: 'Payment Approver',
+        voucherCertifiedBy: 'Voucher Certifier'
+    };
+    
+    localStorage.setItem('sltb-defaults', JSON.stringify(testDefaults));
+    defaultSettings = testDefaults;
+    console.log('Created comprehensive test defaults:', testDefaults);
+    showMessage('Complete test defaults created with all approval fields! Test the Load Defaults button now.', 'success');
+}
+
+// Make test function available globally
+window.createTestDefaults = createTestDefaults;
+
+// Debug function to check available form fields
+function debugFormFields() {
+    const allInputs = document.querySelectorAll('input, select, textarea');
+    console.log('=== Available Form Fields ===');
+    allInputs.forEach(input => {
+        if (input.name || input.id) {
+            console.log(`${input.tagName}: name="${input.name}" id="${input.id}" type="${input.type}"`);
+        }
+    });
+    console.log('=== End Form Fields ===');
+}
+
+window.debugFormFields = debugFormFields;
+
+// Function to check what defaults are currently saved
+function checkSavedDefaults() {
+    const stored = localStorage.getItem('sltb-defaults');
+    if (stored) {
+        const parsed = JSON.parse(stored);
+        console.log('=== CURRENTLY SAVED DEFAULTS ===');
+        console.table(parsed);
+        showMessage(`Found ${Object.keys(parsed).length} saved defaults. Check console for details.`, 'info');
+        return parsed;
+    } else {
+        console.log('No defaults found in localStorage');
+        showMessage('No defaults found. Please save some defaults first.', 'warning');
+        return null;
+    }
+}
+
+window.checkSavedDefaults = checkSavedDefaults;
 
