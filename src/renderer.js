@@ -237,12 +237,14 @@ function loadSpecificVoucherForm(type) {
     
     mainContent.innerHTML += formHTML;
     
-    // Initialize form with defaults
+    // Initialize form with defaults automatically
     setTimeout(() => {
         // Ensure defaults are loaded first
         loadDefaults();
-        populateFormDefaults();
-        if (type === 'payment') {
+        console.log('Auto-filling form with defaults on load...');
+        populateFormDefaultsSimplified(); // Use the better simplified function
+        // Add expenditure row for all voucher types since all now have the same table structure
+        if (type === 'P' || type === 'AP' || type === 'ASP' || type === 'PC') {
             addExpenditureRow();
         }
     }, 100);
@@ -466,33 +468,38 @@ function generateAdvancePaymentVoucherForm() {
         </form>
         
         <div class="expenditure-section">
-            <h3>Service Details</h3>
-            <div class="form-container">
-                <div class="form-group">
-                    <label for="service-description">Detailed description of service rendered, work executed or goods supplied and Certificate of Approving officer, where:</label>
-                    <textarea id="service-description" name="serviceDescription" rows="4" required></textarea>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="rate">Rate Rs.:</label>
-                        <input type="number" id="rate" name="rate" step="0.01" onchange="calculateAdvanceTotal()">
-                    </div>
-                    <div class="form-group">
-                        <label for="units">Units or Months:</label>
-                        <input type="text" id="units" name="units" onchange="calculateAdvanceTotal()">
-                    </div>
-                    <div class="form-group">
-                        <label for="amount">Amount Rs:</label>
-                        <input type="number" id="amount" name="amount" step="0.01" readonly>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="total-payment"><strong>Total Payment Rs.:</strong></label>
-                    <input type="number" id="total-payment" name="totalPayment" step="0.01" readonly>
-                </div>
-            </div>
+            <h3>Expenditure Details</h3>
+            <table class="expenditure-table" id="expenditure-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Detailed description of service rendered, work executed or goods supplied</th>
+                        <th style="width: 15%">Rate Rs.</th>
+                        <th style="width: 15%">Units or Months</th>
+                        <th style="width: 20%">Amount Rs</th>
+                        <th style="width: 10%">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="expenditure-tbody">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" onchange="calculateTotal()"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>VAT (%)</strong></td>
+                        <td><input type="number" id="vat" name="vat" step="0.01" onchange="calculateTotal()"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>Total Payment Rs.</strong></td>
+                        <td><strong id="total-payment">0.00</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button type="button" class="btn btn-success" onclick="addExpenditureRow()">Add Row</button>
         </div>
         
         <div class="approval-section">
@@ -626,22 +633,39 @@ function generateAdvanceSettlementVoucherForm() {
             </div>
         </form>
         
-        <div class="settlement-amounts">
-            <h4>Settlement Details</h4>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="amount-advance">Amount of Advance Rs.:</label>
-                    <input type="number" id="amount-advance" name="amountAdvance" step="0.01" onchange="calculateSettlement()" required>
-                </div>
-                <div class="form-group">
-                    <label for="amount-spent">Amount spent as per attached Documents Rs.:</label>
-                    <input type="number" id="amount-spent" name="amountSpent" step="0.01" onchange="calculateSettlement()" required>
-                </div>
-                <div class="form-group">
-                    <label for="balance-due">Balance due / refund Rs.:</label>
-                    <input type="number" id="balance-due" name="balanceDue" step="0.01" readonly>
-                </div>
-            </div>
+        <div class="expenditure-section">
+            <h3>Expenditure Details</h3>
+            <table class="expenditure-table" id="expenditure-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Detailed description of service rendered, work executed or goods supplied</th>
+                        <th style="width: 15%">Rate Rs.</th>
+                        <th style="width: 15%">Units or Months</th>
+                        <th style="width: 20%">Amount Rs</th>
+                        <th style="width: 10%">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="expenditure-tbody">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" onchange="calculateTotal()"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>VAT (%)</strong></td>
+                        <td><input type="number" id="vat" name="vat" step="0.01" onchange="calculateTotal()"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>Total Payment Rs.</strong></td>
+                        <td><strong id="total-payment">0.00</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button type="button" class="btn btn-success" onclick="addExpenditureRow()">Add Row</button>
         </div>
         
         <div class="approval-section">
@@ -776,33 +800,38 @@ function generatePettyCashVoucherForm() {
         </form>
         
         <div class="expenditure-section">
-            <h3>Service Details</h3>
-            <div class="form-container">
-                <div class="form-group">
-                    <label for="service-description">Detailed description of service rendered, work executed or goods supplied and Certificate of Approving officer, where:</label>
-                    <textarea id="service-description" name="serviceDescription" rows="4" required></textarea>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="rate">Rate Rs.:</label>
-                        <input type="number" id="rate" name="rate" step="0.01" onchange="calculatePettyCashTotal()">
-                    </div>
-                    <div class="form-group">
-                        <label for="units">Units or Months:</label>
-                        <input type="text" id="units" name="units" onchange="calculatePettyCashTotal()">
-                    </div>
-                    <div class="form-group">
-                        <label for="amount">Amount Rs:</label>
-                        <input type="number" id="amount" name="amount" step="0.01" readonly>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="total-payment"><strong>Total Payment Rs.:</strong></label>
-                    <input type="number" id="total-payment" name="totalPayment" step="0.01" readonly>
-                </div>
-            </div>
+            <h3>Expenditure Details</h3>
+            <table class="expenditure-table" id="expenditure-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Detailed description of service rendered, work executed or goods supplied</th>
+                        <th style="width: 15%">Rate Rs.</th>
+                        <th style="width: 15%">Units or Months</th>
+                        <th style="width: 20%">Amount Rs</th>
+                        <th style="width: 10%">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="expenditure-tbody">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" onchange="calculateTotal()"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>VAT (%)</strong></td>
+                        <td><input type="number" id="vat" name="vat" step="0.01" onchange="calculateTotal()"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right"><strong>Total Payment Rs.</strong></td>
+                        <td><strong id="total-payment">0.00</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button type="button" class="btn btn-success" onclick="addExpenditureRow()">Add Row</button>
         </div>
         
         <div class="approval-section">
@@ -1145,19 +1174,42 @@ function collectFormData() {
         data.formData[key] = value;
     }
     
-    // Collect expenditure data for payment vouchers
-    if (currentVoucherType === 'payment') {
-        data.expenditures = [];
-        for (let i = 1; i <= expenditureCount; i++) {
-            const desc = document.querySelector(`[name="expenditure-desc-${i}"]`)?.value;
-            const rate = document.querySelector(`[name="expenditure-rate-${i}"]`)?.value;
-            const units = document.querySelector(`[name="expenditure-units-${i}"]`)?.value;
-            const amount = document.querySelector(`[name="expenditure-amount-${i}"]`)?.value;
-            
-            if (desc || rate || units || amount) {
-                data.expenditures.push({ desc, rate, units, amount });
-            }
+    // Collect approval data from all input fields (including those outside the main form)
+    const approvalFields = [
+        'preparedBy', 'checkedBy', 'recommendedByFirst', 'recommendedBySecond',
+        'paymentApprovedBy', 'voucherCertifiedBy'
+    ];
+    
+    approvalFields.forEach(fieldName => {
+        const field = document.querySelector(`[name="${fieldName}"]`);
+        if (field && field.value) {
+            data.formData[fieldName] = field.value;
         }
+    });
+    
+    // Collect other documents textarea
+    const otherDocs = document.querySelector('[name="otherDocuments"]');
+    if (otherDocs && otherDocs.value) {
+        data.formData.otherDocuments = otherDocs.value;
+    }
+    
+    // Collect expenditure data for all voucher types (all now have expenditure tables)
+    data.expenditures = [];
+    for (let i = 1; i <= expenditureCount; i++) {
+        const desc = document.querySelector(`[name="expenditure-desc-${i}"]`)?.value;
+        const rate = document.querySelector(`[name="expenditure-rate-${i}"]`)?.value;
+        const units = document.querySelector(`[name="expenditure-units-${i}"]`)?.value;
+        const amount = document.querySelector(`[name="expenditure-amount-${i}"]`)?.value;
+        
+        if (desc || rate || units || amount) {
+            data.expenditures.push({ desc, rate, units, amount });
+        }
+    }
+    
+    // Collect total amount
+    const totalElement = document.getElementById('total-payment');
+    if (totalElement) {
+        data.totalAmount = totalElement.textContent || totalElement.value || '0.00';
     }
     
     // Collect document checkboxes
@@ -1181,7 +1233,7 @@ function populateFormWithData(data) {
     });
     
     // Populate expenditures for payment vouchers
-    if (data.expenditures && currentVoucherType === 'payment') {
+    if (data.expenditures && currentVoucherType === 'P') {
         // Clear existing rows
         const tbody = document.getElementById('expenditure-tbody');
         if (tbody) tbody.innerHTML = '';
@@ -1213,11 +1265,11 @@ function populateFormWithData(data) {
     
     // Recalculate totals
     setTimeout(() => {
-        if (currentVoucherType === 'payment') {
+        if (currentVoucherType === 'P') {
             calculateTotal();
-        } else if (currentVoucherType === 'advance-payment' || currentVoucherType === 'petty-cash') {
+        } else if (currentVoucherType === 'AP' || currentVoucherType === 'PC') {
             calculateAdvanceTotal();
-        } else if (currentVoucherType === 'advance-settlement') {
+        } else if (currentVoucherType === 'ASP') {
             calculateSettlement();
         }
     }, 200);
@@ -1245,29 +1297,138 @@ function generatePDF() {
         });
 }
 
-// Generate PDF document matching SLTB official template
+// Helper function to truncate text to fit within specified width
+function truncateText(doc, text, maxWidth, fontSize = 10) {
+    if (!text) return '';
+    
+    doc.setFontSize(fontSize);
+    const textWidth = doc.getTextWidth(text);
+    
+    if (textWidth <= maxWidth) {
+        return text;
+    }
+    
+    // Truncate text and add ellipsis
+    let truncated = text;
+    while (doc.getTextWidth(truncated + '...') > maxWidth && truncated.length > 0) {
+        truncated = truncated.slice(0, -1);
+    }
+    
+    return truncated + (truncated.length < text.length ? '...' : '');
+}
+
+// Helper function to wrap text within specified width
+function wrapText(doc, text, maxWidth, fontSize = 8) {
+    if (!text) return [''];
+    
+    doc.setFontSize(fontSize);
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+    
+    words.forEach(word => {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const testWidth = doc.getTextWidth(testLine);
+        
+        if (testWidth <= maxWidth) {
+            currentLine = testLine;
+        } else {
+            if (currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                // Single word is too long, truncate it
+                lines.push(truncateText(doc, word, maxWidth, fontSize));
+                currentLine = '';
+            }
+        }
+    });
+    
+    if (currentLine) {
+        lines.push(currentLine);
+    }
+    
+    return lines.length > 0 ? lines : [''];
+}
+
+// Helper function to add logo to PDF
+function addLogoToPDF(doc, x, y, size) {
+    try {
+        // Try to get logo element from HTML header
+        const logoImg = document.querySelector('.logo-section img');
+        
+        if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
+            console.log('Found logo image, adding to PDF...');
+            
+            // Create canvas to convert image to base64
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions
+            const aspectRatio = logoImg.naturalWidth / logoImg.naturalHeight;
+            canvas.width = 200; // Standard width
+            canvas.height = 200 / aspectRatio;
+            
+            // Draw image to canvas
+            ctx.drawImage(logoImg, 0, 0, canvas.width, canvas.height);
+            
+            // Convert to base64 and add to PDF
+            const logoDataUrl = canvas.toDataURL('image/png');
+            doc.addImage(logoDataUrl, 'PNG', x, y, size, size);
+            console.log('Logo successfully added to PDF');
+            return true;
+        } else {
+            console.log('Logo image not found or not loaded');
+        }
+    } catch (error) {
+        console.log('Logo conversion error:', error);
+    }
+    return false;
+}
+
+// Generate PDF document matching SLTB official template - Single Page Optimized
 function generatePDFDocument(jsPDF) {
     const doc = new jsPDF('p', 'mm', 'a4');
     const formData = collectFormData();
     
-    // Define page dimensions
+    // Debug: Log collected data to check if approval fields are being collected
+    console.log('Collected form data:', formData);
+    
+    // Define page dimensions - optimized for single page
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 15;
+    const margin = 10; // Reduced margin for more space
+    const usableWidth = pageWidth - 2 * margin;
     
-    // Header Section
+    // Set line width for all borders
     doc.setLineWidth(0.5);
     
-    // Logo placeholder (left side)
-    doc.rect(margin, margin, 25, 25);
-    doc.setFontSize(8);
-    doc.text('SLTB', margin + 12.5, margin + 12.5, { align: 'center' });
-    doc.text('LOGO', margin + 12.5, margin + 15, { align: 'center' });
+    // Logo section (top left) - with actual logo support
+    const logoSize = 25;
     
-    // Title section (center)
+    // Try to add the actual SLTB logo
+    const logoAdded = addLogoToPDF(doc, margin, margin, logoSize);
+    
+    if (!logoAdded) {
+        // Fallback: Create professional SLTB logo box
+        doc.setLineWidth(1);
+        doc.rect(margin, margin, logoSize, logoSize);
+        
+        // SLTB branding text
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.text('SLTB', margin + logoSize/2, margin + logoSize/2 - 2, { align: 'center' });
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6);
+        doc.text('Sri Lanka', margin + logoSize/2, margin + logoSize/2 + 2, { align: 'center' });
+        doc.text('Tea Board', margin + logoSize/2, margin + logoSize/2 + 6, { align: 'center' });
+    }
+    
+    // Title section (center) - optimized spacing
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
-    doc.text('Sri Lanka Tea Board', pageWidth/2, margin + 10, { align: 'center' });
+    doc.setFontSize(14); // Reduced from 16
+    doc.text('Sri Lanka Tea Board', pageWidth/2, margin + 8, { align: 'center' });
     
     // Get voucher title
     let title = '';
@@ -1286,239 +1447,267 @@ function generatePDFDocument(jsPDF) {
             break;
     }
     
-    doc.setFontSize(14);
-    doc.text(title, pageWidth/2, margin + 20, { align: 'center' });
+    doc.setFontSize(12); // Reduced from 14
+    doc.text(title, pageWidth/2, margin + 18, { align: 'center' });
     
-    // Voucher No and Date boxes (top right)
-    const headerRight = pageWidth - margin - 60;
-    doc.rect(headerRight, margin, 60, 12);
-    doc.rect(headerRight, margin + 12, 60, 12);
+    // Voucher No and Date boxes (top right) - optimized
+    const headerRight = pageWidth - margin - 70;
+    const boxWidth = 70;
+    const boxHeight = 12; // Reduced height
     
-    doc.setFontSize(10);
+    // Voucher No box
+    doc.rect(headerRight, margin, boxWidth, boxHeight);
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.text('Voucher No', headerRight + 2, margin + 8);
-    doc.text('Date', headerRight + 2, margin + 20);
+    doc.text('Voucher No', headerRight + 2, margin + 7);
+    doc.setFont('helvetica', 'normal');
+    const voucherNoText = truncateText(doc, formData.formData.voucherNo || '', boxWidth - 25, 8);
+    doc.text(voucherNoText, headerRight + 32, margin + 7);
+    
+    // Date box
+    doc.rect(headerRight, margin + 12, boxWidth, boxHeight);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date', headerRight + 2, margin + 19);
+    doc.setFont('helvetica', 'normal');
+    const dateText = truncateText(doc, formData.formData.voucherDate || '', boxWidth - 15, 8);
+    doc.text(dateText, headerRight + 18, margin + 19);
+    
+    // Main content area starts - optimized positioning
+    let currentY = margin + 30; // Reduced space after header
+    
+    // First row: SLTB Section | File Reference
+    const rowHeight = 10; // Reduced height
+    doc.rect(margin, currentY, usableWidth, rowHeight);
+    
+    const halfWidth = usableWidth / 2;
+    doc.line(margin + halfWidth, currentY, margin + halfWidth, currentY + rowHeight);
+    
+    const labelWidth = 30; // Reduced label width
+    doc.line(margin + labelWidth, currentY, margin + labelWidth, currentY + rowHeight);
+    doc.line(margin + halfWidth + labelWidth, currentY, margin + halfWidth + labelWidth, currentY + rowHeight);
+    
+    doc.setFontSize(8); // Reduced font size
+    doc.setFont('helvetica', 'bold');
+    doc.text('SLTB Section', margin + 1, currentY + 6);
+    doc.text('File Reference', margin + halfWidth + 1, currentY + 6);
     
     doc.setFont('helvetica', 'normal');
-    doc.text(formData.formData.voucherNo || '', headerRight + 25, margin + 8);
-    doc.text(formData.formData.voucherDate || '', headerRight + 25, margin + 20);
+    const sectionText = truncateText(doc, formData.formData.sltbSection || '', halfWidth - labelWidth - 2, 8);
+    const fileRefText = truncateText(doc, formData.formData.fileReference || '', halfWidth - labelWidth - 2, 8);
+    doc.text(sectionText, margin + labelWidth + 1, currentY + 6);
+    doc.text(fileRefText, margin + halfWidth + labelWidth + 1, currentY + 6);
     
-    // Main content area starts
-    let currentY = margin + 35;
+    currentY += rowHeight;
     
-    // Section and File Reference row
-    doc.rect(margin, currentY, pageWidth - 2*margin, 8);
-    doc.line(margin + 60, currentY, margin + 60, currentY + 8);
-    doc.line(pageWidth/2, currentY, pageWidth/2, currentY + 8);
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SLTB Section', margin + 2, currentY + 5);
-    doc.text('File Reference', pageWidth/2 + 2, currentY + 5);
-    
-    doc.setFont('helvetica', 'normal');
-    doc.text(formData.formData.sltbSection || '', margin + 62, currentY + 5);
-    doc.text(formData.formData.fileReference || '', pageWidth/2 + 52, currentY + 5);
-    
-    currentY += 8;
-    
-    // Payable To and Expenditure Code row
-    doc.rect(margin, currentY, pageWidth - 2*margin, 8);
-    doc.line(margin + 60, currentY, margin + 60, currentY + 8);
-    doc.line(pageWidth/2, currentY, pageWidth/2, currentY + 8);
+    // Second row: Payable To
+    doc.rect(margin, currentY, usableWidth, rowHeight);
+    doc.line(margin + labelWidth, currentY, margin + labelWidth, currentY + rowHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.text('Payable To', margin + 2, currentY + 5);
-    doc.text('Expenditure', pageWidth/2 + 2, currentY + 5);
+    doc.text('Payable To', margin + 1, currentY + 6);
     
     doc.setFont('helvetica', 'normal');
-    doc.text(formData.formData.payee || formData.formData.payableTo || '', margin + 62, currentY + 5);
-    doc.text(formData.formData.expenditureCode || '', pageWidth/2 + 52, currentY + 5);
+    const payableText = truncateText(doc, formData.formData.payee || formData.formData.payableTo || '', usableWidth - labelWidth - 2, 8);
+    doc.text(payableText, margin + labelWidth + 1, currentY + 6);
     
-    currentY += 15;
+    currentY += rowHeight;
     
-    // Expenditure table or settlement details
-    if (currentVoucherType === 'advance-settlement') {
-        // Special layout for Advance Settlement Voucher
-        // Amount of Advance
-        doc.rect(margin, currentY, (pageWidth - 2*margin)/2, 10);
-        doc.rect((pageWidth - 2*margin)/2 + margin, currentY, (pageWidth - 2*margin)/2, 10);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
-        doc.text('Amount of Advance', margin + 2, currentY + 6);
-        doc.text('Rs.', pageWidth - margin - 15, currentY + 6);
+    // Third row: Expenditure Code
+    doc.rect(margin, currentY, usableWidth, rowHeight);
+    doc.line(margin + 45, currentY, margin + 45, currentY + rowHeight); // Adjusted for "Expenditure Code"
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Expenditure Code', margin + 1, currentY + 6);
+    
+    doc.setFont('helvetica', 'normal');
+    const expenditureText = truncateText(doc, formData.formData.expenditureCode || '', usableWidth - 47, 8);
+    doc.text(expenditureText, margin + 46, currentY + 6);
+    
+    currentY += rowHeight + 2; // Minimal spacing
+    
+    // Expenditure table - optimized for single page
+    const tableHeight = 50; // Reduced from 80
+    const tableWidth = usableWidth;
+    
+    // Draw main expenditure table border
+    doc.rect(margin, currentY, tableWidth, tableHeight);
+    
+    // Column divisions - optimized proportions
+    const col1Width = tableWidth * 0.42;  // Description column
+    const col2Width = tableWidth * 0.19;  // Rate column  
+    const col3Width = tableWidth * 0.19;  // Units column
+    const col4Width = tableWidth * 0.20;  // Amount column
+    
+    // Draw vertical lines for columns
+    doc.line(margin + col1Width, currentY, margin + col1Width, currentY + tableHeight);
+    doc.line(margin + col1Width + col2Width, currentY, margin + col1Width + col2Width, currentY + tableHeight);
+    doc.line(margin + col1Width + col2Width + col3Width, currentY, margin + col1Width + col2Width + col3Width, currentY + tableHeight);
+    
+    // Header row - reduced height
+    const headerHeight = 15; // Reduced from 20
+    doc.line(margin, currentY + headerHeight, margin + tableWidth, currentY + headerHeight);
+    
+    // Header text - compressed
+    doc.setFontSize(7); // Reduced from 8
+    doc.setFont('helvetica', 'bold');
+    doc.text('Detailed description of service rendered,', margin + 1, currentY + 4);
+    doc.text('work executed or goods supplied and', margin + 1, currentY + 7);
+    doc.text('Certificate of Approving officer, where', margin + 1, currentY + 10);
+    
+    doc.text('Rate Rs.', margin + col1Width + col2Width/2, currentY + 8, { align: 'center' });
+    doc.text('Units or', margin + col1Width + col2Width + col3Width/2, currentY + 6, { align: 'center' });
+    doc.text('Months', margin + col1Width + col2Width + col3Width/2, currentY + 9, { align: 'center' });
+    doc.text('Amount Rs', margin + col1Width + col2Width + col3Width + col4Width/2, currentY + 8, { align: 'center' });
+    
+    // Content rows - optimized spacing
+    if (formData.expenditures && formData.expenditures.length > 0) {
+        let rowY = currentY + headerHeight + 4;
         doc.setFont('helvetica', 'normal');
-        doc.text(formData.formData.amountAdvance || '', margin + 80, currentY + 6);
+        doc.setFontSize(7); // Reduced font size
         
-        currentY += 10;
-        
-        // Amount spent
-        doc.rect(margin, currentY, (pageWidth - 2*margin)/2, 10);
-        doc.rect((pageWidth - 2*margin)/2 + margin, currentY, (pageWidth - 2*margin)/2, 10);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.text('Amount spent as per attached Documents', margin + 2, currentY + 6);
-        doc.text('Rs.', pageWidth - margin - 15, currentY + 6);
-        doc.setFont('helvetica', 'normal');
-        doc.text(formData.formData.amountSpent || '', margin + 120, currentY + 6);
-        
-        currentY += 10;
-        
-        // Balance due
-        doc.rect(margin, currentY, (pageWidth - 2*margin)/2, 10);
-        doc.rect((pageWidth - 2*margin)/2 + margin, currentY, (pageWidth - 2*margin)/2, 10);
-        
-        doc.setFont('helvetica', 'bold');
-        doc.text('Balance due / refund', margin + 2, currentY + 6);
-        doc.text('Rs.', pageWidth - margin - 15, currentY + 6);
-        doc.setFont('helvetica', 'normal');
-        doc.text(formData.formData.balanceDue || '', margin + 80, currentY + 6);
-        
-        currentY += 20;
-    } else {
-        // Expenditure table for other vouchers
-        const tableHeight = 60;
-        const tableWidth = pageWidth - 2*margin;
-        
-        // Draw main expenditure table
-        doc.rect(margin, currentY, tableWidth, tableHeight);
-        
-        // Column divisions - matching template proportions
-        const col1Width = tableWidth * 0.5;
-        const col2Width = tableWidth * 0.15;
-        const col3Width = tableWidth * 0.15;
-        const col4Width = tableWidth * 0.2;
-        
-        doc.line(margin + col1Width, currentY, margin + col1Width, currentY + tableHeight);
-        doc.line(margin + col1Width + col2Width, currentY, margin + col1Width + col2Width, currentY + tableHeight);
-        doc.line(margin + col1Width + col2Width + col3Width, currentY, margin + col1Width + col2Width + col3Width, currentY + tableHeight);
-        
-        // Header row
-        doc.line(margin, currentY + 15, margin + tableWidth, currentY + 15);
-        
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Detailed description of service rendered,', margin + 2, currentY + 5);
-        doc.text('work executed or goods supplied and', margin + 2, currentY + 8);
-        doc.text('Certificate of Approving officer, where', margin + 2, currentY + 11);
-        
-        doc.text('Rate Rs.', margin + col1Width + 5, currentY + 8);
-        doc.text('Units or', margin + col1Width + col2Width + 5, currentY + 6);
-        doc.text('Months', margin + col1Width + col2Width + 5, currentY + 9);
-        doc.text('Amount Rs', margin + col1Width + col2Width + col3Width + 5, currentY + 8);
-        
-        // Content rows (if any expenditures exist)
-        if (formData.expenditures && formData.expenditures.length > 0) {
-            let rowY = currentY + 18;
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(8);
-            
-            formData.expenditures.forEach((exp, index) => {
-                if (exp.desc && exp.desc.trim() && rowY < currentY + tableHeight - 15) {
-                    const desc = exp.desc.substring(0, 80);
-                    doc.text(desc, margin + 2, rowY);
-                    doc.text(exp.rate || '0', margin + col1Width + 5, rowY);
-                    doc.text(exp.units || '0', margin + col1Width + col2Width + 5, rowY);
-                    doc.text(exp.amount || '0', margin + col1Width + col2Width + col3Width + 5, rowY);
-                    rowY += 5;
-                }
-            });
-        }
-        
-        // Total row
-        doc.line(margin, currentY + tableHeight - 10, margin + tableWidth, currentY + tableHeight - 10);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10);
-        doc.text('Total Payment Rs.', margin + col1Width + col2Width - 30, currentY + tableHeight - 5);
-        doc.text(formData.totalAmount || '0.00', margin + col1Width + col2Width + col3Width + 5, currentY + tableHeight - 5);
-        
-        currentY += tableHeight + 10;
+        formData.expenditures.slice(0, 4).forEach((exp, index) => { // Limit to 4 rows for single page
+            if (exp.desc && exp.desc.trim() && rowY < currentY + tableHeight - 12) {
+                const displayDesc = truncateText(doc, exp.desc, col1Width - 2, 7);
+                doc.text(displayDesc, margin + 1, rowY);
+                
+                const rateText = truncateText(doc, exp.rate || '0', col2Width - 2, 7);
+                const unitsText = truncateText(doc, exp.units || '0', col3Width - 2, 7);
+                const amountText = truncateText(doc, exp.amount || '0', col4Width - 2, 7);
+                
+                doc.text(rateText, margin + col1Width + 2, rowY);
+                doc.text(unitsText, margin + col1Width + col2Width + 2, rowY);
+                doc.text(amountText, margin + col1Width + col2Width + col3Width + 2, rowY);
+                rowY += 5; // Reduced row spacing
+            }
+        });
     }
     
-    // Approval section
-    const approvalWidth = (pageWidth - 2*margin) / 2;
-    const approvalHeight = 40;
-    
-    // Left column - Prepared by and Recommended by (First)
-    doc.rect(margin, currentY, approvalWidth, approvalHeight/2);
-    doc.rect(margin, currentY + approvalHeight/2, approvalWidth, approvalHeight/2);
-    
-    // Right column - Checked By and Recommended by (Second)
-    doc.rect(margin + approvalWidth, currentY, approvalWidth, approvalHeight/2);
-    doc.rect(margin + approvalWidth, currentY + approvalHeight/2, approvalWidth, approvalHeight/2);
+    // Total Payment row at bottom
+    const totalRowY = currentY + tableHeight - 10;
+    doc.line(margin, totalRowY, margin + tableWidth, totalRowY);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text('Prepared by', margin + 2, currentY + 5);
-    doc.text('Checked By', margin + approvalWidth + 2, currentY + 5);
-    doc.text('Recommended by (First)', margin + 2, currentY + approvalHeight/2 + 5);
-    doc.text('Recommended by (Second)', margin + approvalWidth + 2, currentY + approvalHeight/2 + 5);
+    doc.setFontSize(8); // Reduced from 10
+    doc.text('Total Payment Rs.', margin + col1Width + col2Width - 15, totalRowY + 6);
+    const totalAmountText = truncateText(doc, formData.totalAmount || '0.00', col4Width - 2, 8);
+    doc.text(totalAmountText, margin + col1Width + col2Width + col3Width + 2, totalRowY + 6);
     
-    doc.setFont('helvetica', 'normal');
-    doc.text(formData.formData.preparedBy || '', margin + 2, currentY + 15);
-    doc.text(formData.formData.checkedBy || '', margin + approvalWidth + 2, currentY + 15);
-    doc.text(formData.formData.recommendedByFirst || '', margin + 2, currentY + approvalHeight/2 + 15);
-    doc.text(formData.formData.recommendedBySecond || '', margin + approvalWidth + 2, currentY + approvalHeight/2 + 15);
+    currentY += tableHeight + 5; // Reduced spacing
     
-    currentY += approvalHeight + 5;
+    // Approval section - compact 2x2 grid
+    const approvalWidth = usableWidth / 2;
+    const approvalHeight = 18; // Reduced from 25
     
-    // Certification text
-    doc.setFontSize(8);
-    doc.text('I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly', margin, currentY);
-    doc.text('authorised and performed and that the payment of Rupees ________________and cents _______ is in accordance with', margin, currentY + 4);
-    doc.text('regulations*/ contract*/ fair and reasonable.', margin, currentY + 8);
-    
-    currentY += 15;
-    
-    // Final approval section
-    doc.rect(margin, currentY, approvalWidth, 20);
-    doc.rect(margin + approvalWidth, currentY, approvalWidth, 20);
+    // Top row: Prepared by | Checked By
+    doc.rect(margin, currentY, approvalWidth, approvalHeight);
+    doc.rect(margin + approvalWidth, currentY, approvalWidth, approvalHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text('Payment Approved By', margin + 2, currentY + 5);
-    doc.text('Voucher Certified By', margin + approvalWidth + 2, currentY + 5);
-    doc.text('(FR 137 Approval)', margin + 2, currentY + 8);
-    doc.text('(FR 138 Voucher Certification)', margin + approvalWidth + 2, currentY + 8);
+    doc.setFontSize(7); // Reduced from 9
+    doc.text('Prepared by', margin + 1, currentY + 5);
+    doc.text('Checked By', margin + approvalWidth + 1, currentY + 5);
     
     doc.setFont('helvetica', 'normal');
-    doc.text(formData.formData.paymentApprovedBy || '', margin + 2, currentY + 15);
-    doc.text(formData.formData.voucherCertifiedBy || '', margin + approvalWidth + 2, currentY + 15);
+    doc.setFontSize(7);
+    const preparedByText = truncateText(doc, formData.formData.preparedBy || '', approvalWidth - 2, 7);
+    const checkedByText = truncateText(doc, formData.formData.checkedBy || '', approvalWidth - 2, 7);
+    doc.text(preparedByText, margin + 1, currentY + 13);
+    doc.text(checkedByText, margin + approvalWidth + 1, currentY + 13);
     
-    currentY += 25;
+    currentY += approvalHeight;
     
-    // Documents section
-    doc.rect(margin, currentY, approvalWidth, 50);
-    doc.rect(margin + approvalWidth, currentY, approvalWidth, 50);
+    // Bottom row: Recommended by (First) | Recommended by (Second)
+    doc.rect(margin, currentY, approvalWidth, approvalHeight);
+    doc.rect(margin + approvalWidth, currentY, approvalWidth, approvalHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text('Attached the Copies of following Documents', margin + 2, currentY + 5);
-    doc.text('Other Documents Attached', margin + approvalWidth + 2, currentY + 5);
+    doc.setFontSize(7);
+    doc.text('Recommended by (First)', margin + 1, currentY + 5);
+    doc.text('Recommended by (Second)', margin + approvalWidth + 1, currentY + 5);
     
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    let docY = currentY + 10;
+    const recommendedByFirstText = truncateText(doc, formData.formData.recommendedByFirst || '', approvalWidth - 2, 7);
+    const recommendedBySecondText = truncateText(doc, formData.formData.recommendedBySecond || '', approvalWidth - 2, 7);
+    doc.text(recommendedByFirstText, margin + 1, currentY + 13);
+    doc.text(recommendedBySecondText, margin + approvalWidth + 1, currentY + 13);
+    
+    currentY += approvalHeight + 3; // Reduced spacing
+    
+    // Certification text - compressed
+    doc.setFontSize(6); // Much smaller font
+    const certificationText = 'I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly authorised and performed and that the payment of Rupees ________________and cents _______ is in accordance with regulations*/ contract*/ fair and reasonable.';
+    
+    const certificationLines = wrapText(doc, certificationText, usableWidth, 6);
+    let certY = currentY;
+    certificationLines.slice(0, 2).forEach(line => { // Limit to 2 lines
+        doc.text(line, margin, certY);
+        certY += 3;
+    });
+    
+    currentY += 8; // Reduced spacing
+    
+    // Final approval section - compact
+    const finalApprovalHeight = 22; // Reduced from 35
+    
+    // Payment Approved By | Voucher Certified By
+    doc.rect(margin, currentY, approvalWidth, finalApprovalHeight);
+    doc.rect(margin + approvalWidth, currentY, approvalWidth, finalApprovalHeight);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7); // Reduced from 9
+    doc.text('Payment Approved By', margin + 1, currentY + 5);
+    doc.text('Voucher Certified By', margin + approvalWidth + 1, currentY + 5);
+    
+    doc.setFontSize(6); // Reduced from 8
+    doc.text('(FR 137 Approval)', margin + 1, currentY + 9);
+    doc.text('(FR 138 Voucher Certification)', margin + approvalWidth + 1, currentY + 9);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    const paymentApprovedByText = truncateText(doc, formData.formData.paymentApprovedBy || '', approvalWidth - 2, 7);
+    const voucherCertifiedByText = truncateText(doc, formData.formData.voucherCertifiedBy || '', approvalWidth - 2, 7);
+    
+    doc.text(paymentApprovedByText, margin + 1, currentY + 17);
+    doc.text(voucherCertifiedByText, margin + approvalWidth + 1, currentY + 17);
+    
+    currentY += finalApprovalHeight + 3; // Reduced spacing
+    
+    // Documents section - compact final section
+    const documentsHeight = 40; // Reduced from 60
+    
+    doc.rect(margin, currentY, approvalWidth, documentsHeight);
+    doc.rect(margin + approvalWidth, currentY, approvalWidth, documentsHeight);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6); // Much smaller font
+    doc.text('Attached the Copies of following Documents', margin + 1, currentY + 4);
+    doc.text('Other Documents Attached', margin + approvalWidth + 1, currentY + 4);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(5); // Very small font for list
+    let docY = currentY + 8;
     const documents = [
         'Invoice', 'Board Approval', 'FR 136 Approval',
-        'DG/Adm/Procurment Approval', 'Good Received Note (GRN)',
+        'DG/Adm/Procurement Approval', 'Good Received Note (GRN)',
         'Good Acceptance Committee Report', 'Service Completed Report'
     ];
     
     documents.forEach(docName => {
-        doc.text(`• ${docName}`, margin + 5, docY);
-        docY += 4;
+        if (docY < currentY + documentsHeight - 2) {
+            doc.text(`• ${docName}`, margin + 2, docY);
+            docY += 4; // Reduced spacing
+        }
     });
     
     // Other documents
-    doc.text('• Other related documents', margin + approvalWidth + 5, currentY + 10);
+    doc.setFontSize(5);
+    doc.text('• Other related documents', margin + approvalWidth + 2, currentY + 8);
     
     // Save PDF with proper filename
     const fileName = `SLTB_${title.replace(/\s+/g, '_')}_${formData.formData.voucherNo || 'draft'}_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
     
-    showMessage('PDF generated successfully in SLTB official format!', 'success');
+    showMessage('PDF generated successfully with proper text formatting!', 'success');
 }
 
 // Print voucher
@@ -1602,14 +1791,16 @@ function loadDefaultsToForm() {
     }
 }
 
-// Simplified populate function that won't cause freezing
+// Simplified populate function that won't cause freezing - Auto-fills all matching form fields
 function populateFormDefaultsSimplified() {
-    console.log('Starting simplified form population with defaults:', defaultSettings);
+    console.log('🔄 Starting auto-fill of form with saved defaults:', defaultSettings);
     
     if (!defaultSettings || Object.keys(defaultSettings).length === 0) {
-        console.log('No defaults to populate');
+        console.log('ℹ️ No saved defaults found - form will remain empty until defaults are saved');
         return;
     }
+    
+    console.log(`📝 Auto-filling ${Object.keys(defaultSettings).length} default values into current form...`);
     
     // Set today's date first
     const dateInput = document.getElementById('voucher-date');
@@ -1659,13 +1850,28 @@ function populateFormDefaultsSimplified() {
                 `input[placeholder*="${key}"]`,
                 `input[name*="${key.toLowerCase()}"]`,
                 `select[name*="${key.toLowerCase()}"]`,
-                `textarea[name*="${key.toLowerCase()}"]`
+                `textarea[name*="${key.toLowerCase()}"]`,
+                // Also try case variations
+                `input[name*="${key}"]`,
+                `select[name*="${key}"]`,
+                `textarea[name*="${key}"]`,
+                // Try ID patterns
+                `input[id*="${key.toLowerCase()}"]`,
+                `select[id*="${key.toLowerCase()}"]`,
+                `textarea[id*="${key.toLowerCase()}"]`,
+                // Try with dashes
+                `input[name*="${key.replace(/([A-Z])/g, '-$1').toLowerCase()}"]`,
+                `select[name*="${key.replace(/([A-Z])/g, '-$1').toLowerCase()}"]`,
+                `textarea[name*="${key.replace(/([A-Z])/g, '-$1').toLowerCase()}"]`
             ];
             
             for (const selector of possibleSelectors) {
                 try {
                     element = document.querySelector(selector);
-                    if (element) break;
+                    if (element) {
+                        console.log(`Found ${key} using selector: ${selector}`);
+                        break;
+                    }
                 } catch (e) {
                     // Continue if selector is invalid
                 }
@@ -1674,59 +1880,78 @@ function populateFormDefaultsSimplified() {
         
         if (element) {
             try {
-                console.log(`Found element for ${key}:`, element.tagName, element.name, element.id);
+                console.log(`Found element for ${key}:`, element.tagName, element.name || 'no-name', element.id || 'no-id');
+                
+                // Skip if element is disabled or readonly and user wants to be able to edit
+                if (element.disabled || element.readOnly) {
+                    console.log(`Skipping ${key} - element is disabled/readonly`);
+                    return;
+                }
                 
                 if (element.tagName === 'SELECT') {
                     // Check if option exists before setting
                     const hasOption = Array.from(element.options).some(option => option.value === value);
                     if (hasOption) {
                         element.value = value;
-                        console.log(`✓ Set select ${key} to "${value}" (now: "${element.value}")`);
+                        console.log(`✓ Auto-filled select ${key}: "${value}"`);
                     } else {
                         console.warn(`✗ Option "${value}" not found in select ${key}`);
-                        console.warn('Available options:', Array.from(element.options).map(o => o.value));
+                        // Try to add the option if it's a text value
+                        if (element.options.length > 0) {
+                            const newOption = document.createElement('option');
+                            newOption.value = value;
+                            newOption.textContent = value;
+                            element.appendChild(newOption);
+                            element.value = value;
+                            console.log(`✓ Added and selected new option for ${key}: "${value}"`);
+                        }
+                    }
+                } else if (element.type === 'checkbox') {
+                    // Handle checkboxes
+                    element.checked = value === 'true' || value === true || value === '1';
+                    console.log(`✓ Auto-filled checkbox ${key}: ${element.checked}`);
+                } else if (element.type === 'radio') {
+                    // Handle radio buttons
+                    if (element.value === value) {
+                        element.checked = true;
+                        console.log(`✓ Auto-filled radio ${key}: ${value}`);
                     }
                 } else {
+                    // Handle text inputs, textareas, etc.
                     const oldValue = element.value;
                     element.value = value;
-                    console.log(`✓ Set input ${key} from "${oldValue}" to "${value}" (now: "${element.value}")`);
+                    console.log(`✓ Auto-filled ${element.type || 'input'} ${key}: "${oldValue}" → "${value}"`);
                 }
                 
                 // Trigger change event to update any listeners
                 element.dispatchEvent(new Event('change', { bubbles: true }));
+                element.dispatchEvent(new Event('input', { bubbles: true }));
                 
             } catch (error) {
                 console.warn(`✗ Error setting ${key}:`, error);
             }
         } else {
-            console.warn(`✗ Field not found for key: ${key}`);
-            console.warn('Searched for:', `[name="${key}"]`, `#${key}`);
+            console.warn(`✗ Field not found for key: ${key} - no matching element found`);
         }
     });
     
-    console.log('✓ Simplified form population completed');
+    console.log('✓ Auto-fill form population completed - all matching fields filled with defaults!');
 }
 
 // Make sure the function is available globally
 window.loadDefaultsToForm = loadDefaultsToForm;
 
-// Test function to create sample defaults if none exist
+// Simple test function to create only "Prepared by" default for auto-fill testing
 function createTestDefaults() {
     const testDefaults = {
-        sltbSection: 'IT Section',
-        fileReference: 'SLTB/IT/2025/001',
-        preparedBy: 'John Doe',
-        checkedBy: 'Jane Smith',
-        recommendedByFirst: 'First Recommender',
-        recommendedBySecond: 'Second Recommender',
-        paymentApprovedBy: 'Payment Approver',
-        voucherCertifiedBy: 'Voucher Certifier'
+        // Only "Prepared by" field
+        'preparedBy': 'John Doe'
     };
     
     localStorage.setItem('sltb-defaults', JSON.stringify(testDefaults));
     defaultSettings = testDefaults;
-    console.log('Created comprehensive test defaults:', testDefaults);
-    showMessage('Complete test defaults created with all approval fields! Test the Load Defaults button now.', 'success');
+    console.log('✅ Created simple test default for auto-fill:', testDefaults);
+    showMessage(`✅ Simple default created! Only "Prepared by" will auto-fill across all forms.`, 'success');
 }
 
 // Make test function available globally
@@ -1763,4 +1988,28 @@ function checkSavedDefaults() {
 }
 
 window.checkSavedDefaults = checkSavedDefaults;
+
+// Helper function to clear all form fields for testing auto-fill
+function clearAllFormFields() {
+    const allInputs = document.querySelectorAll('input, select, textarea');
+    let clearedCount = 0;
+    
+    allInputs.forEach(input => {
+        if (input.type !== 'button' && input.type !== 'submit' && input.type !== 'reset') {
+            if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            } else if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+            clearedCount++;
+        }
+    });
+    
+    console.log(`🧹 Cleared ${clearedCount} form fields`);
+    showMessage(`Cleared ${clearedCount} form fields. Now switch forms to see auto-fill in action!`, 'info');
+}
+
+window.clearAllFormFields = clearAllFormFields;
 

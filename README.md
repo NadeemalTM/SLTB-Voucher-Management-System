@@ -78,26 +78,14 @@ sltb-payment-voucher-system/
 - Auto-populate forms with defaults
 - Customizable per user
 
-### 3. Payment Voucher
-- Multiple expenditure line items
+### 3. Payment Voucher, Advance Payment, Settlement & Petty Cash Vouchers
+- **Unified Interface**: All voucher types now have identical structure
+- Multiple expenditure line items with dynamic table
 - Automatic tax calculations (SSCL VAT, VAT)
-- Detailed approval workflow
+- Detailed approval workflow (6 approval levels)
 - Document attachment checklist
-
-### 4. Advance Payment Voucher
-- Service description entry
-- Rate and unit calculations
-- Approval chain management
-
-### 5. Advance Settlement Voucher
-- Settlement amount calculations
-- Balance due/refund computation
-- Previous advance reference
-
-### 6. Petty Cash Voucher
-- Small transaction management
-- Simplified approval process
-- Quick entry form
+- Professional PDF generation matching official SLTB templates
+- Load Defaults functionality across all forms
 
 ### 7. PDF Generation
 - Professional voucher formatting

@@ -69,81 +69,20 @@
             <!-- Default Settings Page -->
             <div id="defaults-page" class="page">
                 <h2>Default Settings</h2>
-                <p class="info-text">Configure default values that will automatically fill in voucher forms. This saves time when creating multiple vouchers.</p>
+                <p class="info-text">Configure the default "Prepared by" value that will automatically fill in all voucher forms.</p>
                 
                 <form id="defaults-form" class="form-container">
-                    <h3>Basic Information</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="default-sltb-section">SLTB Section:</label>
-                            <select id="default-sltb-section" name="sltbSection">
-                                <option value="">Select Section</option>
-                                <option value="Admin">Admin</option>
-                                <option value="IT Section">IT Section</option>
-                                <option value="Export">Export</option>
-                                <option value="TC">TC</option>
-                                <option value="Promotion">Promotion</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Tea Testing Unit">Tea Testing Unit</option>
-                                <option value="Audit">Audit</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="default-file-reference">File Reference:</label>
-                            <input type="text" id="default-file-reference" name="fileReference" placeholder="e.g., SLTB/FIN/2024/001">
-                        </div>
-                    </div>
-
-                    <h3>Approval Personnel</h3>
+                    <h3>Auto-Fill Settings</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="default-prepared-by">Prepared by:</label>
-                            <input type="text" id="default-prepared-by" name="preparedBy" placeholder="Full Name">
-                        </div>
-                        <div class="form-group">
-                            <label for="default-checked-by">Checked by:</label>
-                            <input type="text" id="default-checked-by" name="checkedBy" placeholder="Full Name">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="default-recommended-by-first">Recommended by (First):</label>
-                            <input type="text" id="default-recommended-by-first" name="recommendedByFirst" placeholder="Full Name">
-                        </div>
-                        <div class="form-group">
-                            <label for="default-recommended-by-second">Recommended by (Second):</label>
-                            <input type="text" id="default-recommended-by-second" name="recommendedBySecond" placeholder="Full Name">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="default-payment-approved-by">Payment Approved by (FR 137):</label>
-                            <input type="text" id="default-payment-approved-by" name="paymentApprovedBy" placeholder="Full Name">
-                        </div>
-                        <div class="form-group">
-                            <label for="default-voucher-certified-by">Voucher Certified by (FR 138):</label>
-                            <input type="text" id="default-voucher-certified-by" name="voucherCertifiedBy" placeholder="Full Name">
-                        </div>
-                    </div>
-
-                    <h3>Tax Settings (Optional)</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="default-sscl-vat">Default SSCL VAT (%):</label>
-                            <input type="number" id="default-sscl-vat" name="ssclVat" step="0.01" min="0" max="100" placeholder="e.g., 14.5">
-                        </div>
-                        <div class="form-group">
-                            <label for="default-vat">Default VAT (%):</label>
-                            <input type="number" id="default-vat" name="vat" step="0.01" min="0" max="100" placeholder="e.g., 15">
+                            <input type="text" id="default-prepared-by" name="preparedBy" placeholder="Enter your full name" style="width: 400px;">
                         </div>
                     </div>
 
                     <div class="button-group">
-                        <button type="button" class="btn btn-success" onclick="saveDefaults()">Save Defaults</button>
-                        <button type="button" class="btn btn-warning" onclick="clearDefaults()">Clear All</button>
-                        <button type="button" class="btn btn-info" onclick="loadDefaultsPreview()">Preview</button>
+                        <button type="button" class="btn btn-success" onclick="saveDefaults()">Save Default</button>
+                        <button type="button" class="btn btn-warning" onclick="clearDefaults()">Clear</button>
                         <button type="button" class="btn btn-primary" onclick="testAutoFill()">Test Auto-Fill</button>
                     </div>
                 </form>
