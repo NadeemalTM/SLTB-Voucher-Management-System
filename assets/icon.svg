@@ -1,0 +1,29 @@
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="128" cy="128" r="120" fill="#2c5530" stroke="#1a3319" stroke-width="4"/>
+  
+  <!-- Inner circle for contrast -->
+  <circle cx="128" cy="128" r="100" fill="#4a7c59" opacity="0.9"/>
+  
+  <!-- Tea leaf design -->
+  <g transform="translate(128,128)">
+    <!-- Main leaf shape -->
+    <ellipse cx="0" cy="-20" rx="35" ry="60" fill="#7fb069" opacity="0.9"/>
+    <ellipse cx="-25" cy="15" rx="25" ry="45" fill="#6fa84f" opacity="0.8"/>
+    <ellipse cx="25" cy="15" rx="25" ry="45" fill="#6fa84f" opacity="0.8"/>
+    
+    <!-- Leaf veins -->
+    <line x1="0" y1="-70" x2="0" y2="40" stroke="#2c5530" stroke-width="3"/>
+    <line x1="-20" y1="-30" x2="20" y2="-30" stroke="#2c5530" stroke-width="2"/>
+    <line x1="-15" y1="-5" x2="15" y2="-5" stroke="#2c5530" stroke-width="2"/>
+    <line x1="-10" y1="20" x2="10" y2="20" stroke="#2c5530" stroke-width="2"/>
+  </g>
+  
+  <!-- Text elements -->
+  <text x="128" y="210" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">
+    SLTB
+  </text>
+  <text x="128" y="230" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white" opacity="0.9">
+    Payment System
+  </text>
+</svg>

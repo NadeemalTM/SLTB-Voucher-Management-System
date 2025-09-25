@@ -28,28 +28,136 @@ function loadDefaults() {
 // Populate defaults form
 function populateDefaultsForm() {
     const form = document.getElementById('defaults-form');
-    if (form) {
-        Object.keys(defaultSettings).forEach(key => {
-            const element = form.querySelector(`[name="${key}"]`);
-            if (element) {
-                element.value = defaultSettings[key] || '';
-            }
-        });
+    if (!form) return;
+    
+    // Clear the form first
+    form.reset();
+    
+    // Populate with saved defaults
+    Object.keys(defaultSettings).forEach(key => {
+        const element = form.querySelector(`[name="${key}"]`) || form.querySelector(`#default-${key}`);
+        if (element) {
+            element.value = defaultSettings[key] || '';
+        }
+    });
+}
+
+// Load and populate defaults for the defaults page
+function loadAndPopulateDefaults() {
+    const stored = localStorage.getItem('sltb-defaults');
+    if (stored) {
+        defaultSettings = JSON.parse(stored);
     }
+    populateDefaultsForm();
 }
 
 // Save default settings
 function saveDefaults() {
     const form = document.getElementById('defaults-form');
+    if (!form) {
+        showMessage('Error: Default settings form not found!', 'error');
+        return;
+    }
+    
     const formData = new FormData(form);
     
     defaultSettings = {};
     for (let [key, value] of formData.entries()) {
-        defaultSettings[key] = value;
+        if (value.trim() !== '') { // Only save non-empty values
+            defaultSettings[key] = value.trim();
+        }
     }
     
     localStorage.setItem('sltb-defaults', JSON.stringify(defaultSettings));
+    
+    // Show success message
+    const statusDiv = document.getElementById('defaults-status');
+    if (statusDiv) {
+        statusDiv.innerHTML = '<div class="message success">Default settings saved successfully! These values will now auto-fill in voucher forms.</div>';
+        setTimeout(() => {
+            statusDiv.innerHTML = '';
+        }, 5000);
+    }
+    
     showMessage('Default settings saved successfully!', 'success');
+}
+
+// Clear all default settings
+function clearDefaults() {
+    if (confirm('Are you sure you want to clear all default settings? This action cannot be undone.')) {
+        defaultSettings = {};
+        localStorage.removeItem('sltb-defaults');
+        
+        // Clear the form
+        const form = document.getElementById('defaults-form');
+        if (form) {
+            form.reset();
+        }
+        
+        const statusDiv = document.getElementById('defaults-status');
+        if (statusDiv) {
+            statusDiv.innerHTML = '<div class="message info">All default settings have been cleared.</div>';
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 3000);
+        }
+        
+        showMessage('Default settings cleared!', 'info');
+    }
+}
+
+// Preview default settings
+function loadDefaultsPreview() {
+    const form = document.getElementById('defaults-form');
+    if (!form) return;
+    
+    const formData = new FormData(form);
+    const previewData = {};
+    
+    for (let [key, value] of formData.entries()) {
+        if (value.trim() !== '') {
+            previewData[key] = value.trim();
+        }
+    }
+    
+    const statusDiv = document.getElementById('defaults-status');
+    if (statusDiv) {
+        let previewHTML = '<div class="message info"><h4>Current Default Settings Preview:</h4><ul>';
+        
+        if (Object.keys(previewData).length === 0) {
+            previewHTML += '<li>No default values set</li>';
+        } else {
+            Object.keys(previewData).forEach(key => {
+                const friendlyName = getFriendlyFieldName(key);
+                previewHTML += `<li><strong>${friendlyName}:</strong> ${previewData[key]}</li>`;
+            });
+        }
+        
+        previewHTML += '</ul></div>';
+        statusDiv.innerHTML = previewHTML;
+        
+        setTimeout(() => {
+            statusDiv.innerHTML = '';
+        }, 10000);
+    }
+}
+
+// Helper function to convert field names to friendly names
+function getFriendlyFieldName(fieldName) {
+    const fieldMap = {
+        'sltbSection': 'SLTB Section',
+        'fileReference': 'File Reference',
+        'preparedBy': 'Prepared By',
+        'checkedBy': 'Checked By',
+        'recommendedByFirst': 'Recommended By (First)',
+        'recommendedBySecond': 'Recommended By (Second)',
+        'paymentApprovedBy': 'Payment Approved By',
+        'voucherCertifiedBy': 'Voucher Certified By',
+        'ssclVat': 'SSCL VAT (%)',
+        'vat': 'VAT (%)'
+    };
+    
+    return fieldMap[fieldName] || fieldName;
 }
 
 // Load voucher form
@@ -72,7 +180,7 @@ function loadVoucherForm(type) {
     
     if (type === 'defaults') {
         document.getElementById('defaults-page').classList.add('active');
-        populateDefaultsForm();
+        loadAndPopulateDefaults();
         return;
     }
     
@@ -751,16 +859,57 @@ function generatePettyCashVoucherForm() {
 
 // Populate form with default values
 function populateFormDefaults() {
+    console.log('Populating form with defaults:', defaultSettings);
+    
     Object.keys(defaultSettings).forEach(key => {
-        const element = document.querySelector(`[name="${key}"]`);
+        // Try to find the element by name attribute
+        let element = document.querySelector(`[name="${key}"]`);
+        
+        // If not found, try by id
+        if (!element) {
+            element = document.getElementById(key);
+        }
+        
+        // If still not found, try common field mappings
+        if (!element) {
+            const fieldMappings = {
+                'sltbSection': 'sltb-section',
+                'fileReference': 'file-reference',
+                'preparedBy': 'preparedBy',
+                'checkedBy': 'checkedBy',
+                'recommendedByFirst': 'recommendedByFirst',
+                'recommendedBySecond': 'recommendedBySecond',
+                'paymentApprovedBy': 'paymentApprovedBy',
+                'voucherCertifiedBy': 'voucherCertifiedBy',
+                'ssclVat': 'sscl-vat',
+                'vat': 'vat'
+            };
+            
+            const mappedId = fieldMappings[key];
+            if (mappedId) {
+                element = document.getElementById(mappedId);
+            }
+        }
+        
         if (element && defaultSettings[key]) {
+            console.log(`Setting ${key} to ${defaultSettings[key]}`);
             element.value = defaultSettings[key];
+            
+            // For select elements, make sure the option exists
+            if (element.tagName === 'SELECT') {
+                const option = element.querySelector(`option[value="${defaultSettings[key]}"]`);
+                if (option) {
+                    element.value = defaultSettings[key];
+                } else {
+                    console.warn(`Option not found for ${key}: ${defaultSettings[key]}`);
+                }
+            }
         }
     });
     
     // Set today's date
     const dateInput = document.getElementById('voucher-date');
-    if (dateInput) {
+    if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split('T')[0];
     }
 }
@@ -1032,9 +1181,10 @@ function generatePDFDocument(jsPDF) {
     // Set font
     doc.setFont('helvetica');
     
-    // Header
+    // Header with logo space
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
+    // Add space for logo (you can add actual logo embedding here if needed)
     doc.text('Sri Lanka Tea Board', 105, 20, { align: 'center' });
     
     let title = '';
