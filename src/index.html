@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLTB Payment Voucher System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo-section">
+                <img src="../assets/sltb-logo.png" alt="SLTB Logo" class="logo">
+                <h1>Sri Lanka Tea Board</h1>
+                <h2>Payment Voucher System</h2>
+            </div>
+        </header>
+
+        <nav class="navigation">
+            <button class="nav-btn" onclick="loadVoucherForm('welcome')">Home</button>
+            <button class="nav-btn" onclick="loadVoucherForm('payment')">Payment Voucher</button>
+            <button class="nav-btn" onclick="loadVoucherForm('advance-payment')">Advance Payment</button>
+            <button class="nav-btn" onclick="loadVoucherForm('advance-settlement')">Settlement Voucher</button>
+            <button class="nav-btn" onclick="loadVoucherForm('petty-cash')">Petty Cash</button>
+            <button class="nav-btn" onclick="loadDefaults()">Default Settings</button>
+        </nav>
+
+        <main class="main-content" id="main-content">
+            <!-- Welcome Page -->
+            <div id="welcome-page" class="page active">
+                <div class="welcome-content">
+                    <h2>Welcome to SLTB Payment Voucher System</h2>
+                    <p>Select a voucher type from the navigation menu to begin:</p>
+                    
+                    <div class="voucher-types">
+                        <div class="voucher-card" onclick="loadVoucherForm('payment')">
+                            <h3>Payment Voucher</h3>
+                            <p>Create standard payment vouchers with detailed expenditure breakdown</p>
+                        </div>
+                        
+                        <div class="voucher-card" onclick="loadVoucherForm('advance-payment')">
+                            <h3>Advance Payment Voucher</h3>
+                            <p>Process advance payments for future services or goods</p>
+                        </div>
+                        
+                        <div class="voucher-card" onclick="loadVoucherForm('advance-settlement')">
+                            <h3>Advance Payment Settlement</h3>
+                            <p>Settle previously issued advance payments</p>
+                        </div>
+                        
+                        <div class="voucher-card" onclick="loadVoucherForm('petty-cash')">
+                            <h3>Petty Cash Voucher</h3>
+                            <p>Handle small cash transactions and expenses</p>
+                        </div>
+                    </div>
+
+                    <div class="system-info">
+                        <h3>System Guidelines</h3>
+                        <ul>
+                            <li>Fill all required fields before generating PDF</li>
+                            <li>Use the "Change Default" settings to save frequently used data</li>
+                            <li>Generated vouchers are automatically saved to Documents/SLTB_Vouchers</li>
+                            <li>Print preview is available before final printing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Default Settings Page -->
+            <div id="defaults-page" class="page">
+                <h2>Default Settings</h2>
+                <form id="defaults-form" class="form-container">
+                    <div class="form-group">
+                        <label for="default-creator-name">Creator Name:</label>
+                        <input type="text" id="default-creator-name" name="creatorName">
+                    </div>
+                    <div class="form-group">
+                        <label for="default-creator-designation">Creator Designation:</label>
+                        <input type="text" id="default-creator-designation" name="creatorDesignation">
+                    </div>
+                    <div class="form-group">
+                        <label for="default-checked-by-name">Checked by Name:</label>
+                        <input type="text" id="default-checked-by-name" name="checkedByName">
+                    </div>
+                    <div class="form-group">
+                        <label for="default-checked-by-designation">Checked by Designation:</label>
+                        <input type="text" id="default-checked-by-designation" name="checkedByDesignation">
+                    </div>
+                    <div class="form-group">
+                        <label for="default-file-reference">File Reference:</label>
+                        <input type="text" id="default-file-reference" name="fileReference">
+                    </div>
+                    <div class="form-group">
+                        <label for="default-prepared-by">Prepared by:</label>
+                        <input type="text" id="default-prepared-by" name="preparedBy">
+                    </div>
+                    <div class="form-group">
+                        <label for="default-sltb-section">SLTB Section:</label>
+                        <select id="default-sltb-section" name="sltbSection">
+                            <option value="">Select Section</option>
+                            <option value="Admin">Admin</option>
+                            <option value="IT Section">IT Section</option>
+                            <option value="Export">Export</option>
+                            <option value="TC">TC</option>
+                            <option value="Promotion">Promotion</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Tea Testing Unit">Tea Testing Unit</option>
+                            <option value="Audit">Audit</option>
+                        </select>
+                    </div>
+                    <button type="button" onclick="saveDefaults()">Save Defaults</button>
+                </form>
+            </div>
+
+            <!-- Voucher forms will be loaded here dynamically -->
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Sri Lanka Tea Board - IT Division | Version 1.0.0</p>
+        </footer>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
