@@ -1325,3 +1325,9 @@ function showMessage(message, type = 'info') {
         messageDiv.remove();
     }, 5000);
 }
+
+// Debug function to test default settings
+function testDefaultSettings() {
+    console.log('Current default settings:', defaultSettings);
+    console.log('LocalStorage data:', localStorage.getItem('sltb-defaults'));
+}
