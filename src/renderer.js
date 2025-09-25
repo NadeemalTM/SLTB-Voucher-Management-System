@@ -404,6 +404,7 @@ function generatePaymentVoucherForm() {
         </div>
         
         <div class="button-group">
+            <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
@@ -564,6 +565,7 @@ function generateAdvancePaymentVoucherForm() {
         </div>
         
         <div class="button-group">
+            <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
@@ -712,6 +714,7 @@ function generateAdvanceSettlementVoucherForm() {
         </div>
         
         <div class="button-group">
+            <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
@@ -872,6 +875,7 @@ function generatePettyCashVoucherForm() {
         </div>
         
         <div class="button-group">
+            <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
@@ -1415,3 +1419,25 @@ function testAutoFill() {
         }, 2000);
     }
 }
+
+// Load defaults into current form manually
+function loadDefaultsToForm() {
+    // Reload defaults first to get latest values
+    loadDefaults();
+    
+    if (!defaultSettings || Object.keys(defaultSettings).length === 0) {
+        showMessage('No default settings found. Please set defaults first in Default Settings.', 'info');
+        return;
+    }
+    
+    // Apply defaults to current form
+    populateFormDefaults();
+    
+    // Show success message
+    const count = Object.keys(defaultSettings).length;
+    showMessage(`Loaded ${count} default values into form!`, 'success');
+    
+    // Optional: Log what was loaded for debugging
+    console.log('Manually loaded defaults to form:', defaultSettings);
+}
+
