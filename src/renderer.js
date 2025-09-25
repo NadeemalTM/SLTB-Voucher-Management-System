@@ -7,21 +7,37 @@ let defaultSettings = {};
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Application initializing...');
+    
+    // Load defaults first thing
     loadDefaults();
+    console.log('Defaults loaded on startup:', defaultSettings);
+    
+    // Load welcome page
     loadVoucherForm('welcome');
     
     // Listen for menu events
     ipcRenderer.on('load-voucher', (event, voucherType) => {
         loadVoucherForm(voucherType);
     });
+    
+    console.log('Application initialized successfully');
 });
 
 // Load default settings
 function loadDefaults() {
-    const stored = localStorage.getItem('sltb-defaults');
-    if (stored) {
-        defaultSettings = JSON.parse(stored);
-        populateDefaultsForm();
+    try {
+        const stored = localStorage.getItem('sltb-defaults');
+        if (stored) {
+            defaultSettings = JSON.parse(stored);
+            console.log('Loaded default settings:', defaultSettings);
+        } else {
+            console.log('No stored default settings found');
+            defaultSettings = {};
+        }
+    } catch (error) {
+        console.error('Error loading default settings:', error);
+        defaultSettings = {};
     }
 }
 
@@ -44,10 +60,8 @@ function populateDefaultsForm() {
 
 // Load and populate defaults for the defaults page
 function loadAndPopulateDefaults() {
-    const stored = localStorage.getItem('sltb-defaults');
-    if (stored) {
-        defaultSettings = JSON.parse(stored);
-    }
+    // Always reload from storage to get latest
+    loadDefaults();
     populateDefaultsForm();
 }
 
@@ -62,24 +76,32 @@ function saveDefaults() {
     const formData = new FormData(form);
     
     defaultSettings = {};
+    let savedCount = 0;
+    
     for (let [key, value] of formData.entries()) {
         if (value.trim() !== '') { // Only save non-empty values
             defaultSettings[key] = value.trim();
+            savedCount++;
         }
     }
     
+    console.log('Saving default settings:', defaultSettings);
     localStorage.setItem('sltb-defaults', JSON.stringify(defaultSettings));
     
-    // Show success message
+    // Show success message with details
     const statusDiv = document.getElementById('defaults-status');
     if (statusDiv) {
-        statusDiv.innerHTML = '<div class="message success">Default settings saved successfully! These values will now auto-fill in voucher forms.</div>';
+        statusDiv.innerHTML = `<div class="message success">
+            <strong>Default settings saved successfully!</strong><br>
+            ${savedCount} values saved. These will now auto-fill in voucher forms.<br>
+            <small>Try creating a voucher to see the auto-fill in action!</small>
+        </div>`;
         setTimeout(() => {
             statusDiv.innerHTML = '';
-        }, 5000);
+        }, 8000);
     }
     
-    showMessage('Default settings saved successfully!', 'success');
+    showMessage(`Default settings saved! ${savedCount} values will auto-fill in forms.`, 'success');
 }
 
 // Clear all default settings
@@ -217,6 +239,8 @@ function loadSpecificVoucherForm(type) {
     
     // Initialize form with defaults
     setTimeout(() => {
+        // Ensure defaults are loaded first
+        loadDefaults();
         populateFormDefaults();
         if (type === 'payment') {
             addExpenditureRow();
@@ -861,22 +885,38 @@ function generatePettyCashVoucherForm() {
 function populateFormDefaults() {
     console.log('Populating form with defaults:', defaultSettings);
     
+    if (!defaultSettings || Object.keys(defaultSettings).length === 0) {
+        console.log('No default settings found');
+        // Set today's date anyway
+        const dateInput = document.getElementById('voucher-date');
+        if (dateInput && !dateInput.value) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+        return;
+    }
+    
     Object.keys(defaultSettings).forEach(key => {
-        // Try to find the element by name attribute
-        let element = document.querySelector(`[name="${key}"]`);
+        const value = defaultSettings[key];
+        if (!value || value.trim() === '') return;
         
-        // If not found, try by id
+        // Multiple strategies to find the element
+        let element = null;
+        
+        // Strategy 1: Find by name attribute
+        element = document.querySelector(`[name="${key}"]`);
+        
+        // Strategy 2: Find by exact ID
         if (!element) {
             element = document.getElementById(key);
         }
         
-        // If still not found, try common field mappings
+        // Strategy 3: Find by mapped ID (for form fields with different naming)
         if (!element) {
             const fieldMappings = {
                 'sltbSection': 'sltb-section',
                 'fileReference': 'file-reference',
                 'preparedBy': 'preparedBy',
-                'checkedBy': 'checkedBy',
+                'checkedBy': 'checkedBy', 
                 'recommendedByFirst': 'recommendedByFirst',
                 'recommendedBySecond': 'recommendedBySecond',
                 'paymentApprovedBy': 'paymentApprovedBy',
@@ -891,26 +931,54 @@ function populateFormDefaults() {
             }
         }
         
-        if (element && defaultSettings[key]) {
-            console.log(`Setting ${key} to ${defaultSettings[key]}`);
-            element.value = defaultSettings[key];
+        // Strategy 4: Find inputs with specific names that contain the key
+        if (!element) {
+            const possibleSelectors = [
+                `input[name*="${key}"]`,
+                `select[name*="${key}"]`,
+                `textarea[name*="${key}"]`,
+                `input[id*="${key}"]`,
+                `select[id*="${key}"]`,
+                `textarea[id*="${key}"]`
+            ];
             
-            // For select elements, make sure the option exists
-            if (element.tagName === 'SELECT') {
-                const option = element.querySelector(`option[value="${defaultSettings[key]}"]`);
-                if (option) {
-                    element.value = defaultSettings[key];
-                } else {
-                    console.warn(`Option not found for ${key}: ${defaultSettings[key]}`);
-                }
+            for (const selector of possibleSelectors) {
+                element = document.querySelector(selector);
+                if (element) break;
             }
+        }
+        
+        if (element) {
+            console.log(`Setting ${key} to ${value} on element:`, element);
+            
+            // Handle different input types
+            if (element.tagName === 'SELECT') {
+                // For select elements, check if option exists
+                const option = element.querySelector(`option[value="${value}"]`);
+                if (option) {
+                    element.value = value;
+                    console.log(`Set select ${key} to ${value}`);
+                } else {
+                    console.warn(`Option not found for ${key}: ${value}`);
+                }
+            } else if (element.type === 'checkbox') {
+                // For checkboxes, set checked property
+                element.checked = value === 'true' || value === true;
+            } else {
+                // For text inputs, textareas, etc.
+                element.value = value;
+                console.log(`Set input ${key} to ${value}`);
+            }
+        } else {
+            console.warn(`Element not found for key: ${key}`);
         }
     });
     
-    // Set today's date
+    // Always set today's date if date field exists and is empty
     const dateInput = document.getElementById('voucher-date');
     if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split('T')[0];
+        console.log('Set date to today');
     }
 }
 
@@ -1330,4 +1398,20 @@ function showMessage(message, type = 'info') {
 function testDefaultSettings() {
     console.log('Current default settings:', defaultSettings);
     console.log('LocalStorage data:', localStorage.getItem('sltb-defaults'));
+}
+
+// Test auto-fill functionality
+function testAutoFill() {
+    // First save current form data as defaults
+    saveDefaults();
+    
+    // Then show a message and redirect to test with a payment voucher
+    const statusDiv = document.getElementById('defaults-status');
+    if (statusDiv) {
+        statusDiv.innerHTML = '<div class="message info">Testing auto-fill... Creating a Payment Voucher to test the functionality. Check if your default values appear automatically!</div>';
+        
+        setTimeout(() => {
+            loadVoucherForm('payment');
+        }, 2000);
+    }
 }
