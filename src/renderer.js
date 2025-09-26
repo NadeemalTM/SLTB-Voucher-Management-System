@@ -1109,22 +1109,33 @@ function calculateSettlement() {
     }
 }
 
-// Generate voucher number
+// Generate voucher number - Short format
 function generateVoucherNumber() {
     const now = new Date();
-    const year = now.getFullYear();
+    const year = String(now.getFullYear()).slice(-2); // Last 2 digits of year
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const time = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
     
-    const voucherNumber = `SLTB-${currentVoucherType.toUpperCase()}-${year}${month}${day}-${time}`;
+    // Generate a random 3-digit number for uniqueness
+    const randomNum = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+    
+    // Short voucher type codes
+    const typeCode = {
+        'payment': 'PV',
+        'advance-payment': 'AP', 
+        'advance-settlement': 'AS',
+        'petty-cash': 'PC'
+    };
+    
+    const code = typeCode[currentVoucherType] || 'VR';
+    const voucherNumber = `${code}${year}${month}${day}${randomNum}`;
     
     const voucherNoInput = document.getElementById('voucher-no');
     if (voucherNoInput) {
         voucherNoInput.value = voucherNumber;
     }
     
-    showMessage('Voucher number generated successfully!', 'success');
+    showMessage('Short voucher number generated successfully!', 'success');
 }
 
 // Save voucher data
