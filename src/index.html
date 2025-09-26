@@ -16,52 +16,46 @@
             </div>
         </header>
 
-        <nav class="navigation">
-            <button class="nav-btn" onclick="loadVoucherForm('welcome')">Home</button>
-            <button class="nav-btn" onclick="loadVoucherForm('payment')">Payment Voucher</button>
-            <button class="nav-btn" onclick="loadVoucherForm('advance-payment')">Advance Payment</button>
-            <button class="nav-btn" onclick="loadVoucherForm('advance-settlement')">Settlement Voucher</button>
-            <button class="nav-btn" onclick="loadVoucherForm('petty-cash')">Petty Cash</button>
-            <button class="nav-btn" onclick="loadVoucherForm('defaults')">Default Settings</button>
-        </nav>
+        <!-- Floating Controls -->
+        <div class="floating-controls">
+            <button class="floating-btn home-btn" onclick="loadVoucherForm('welcome')" title="Home">
+                🏠
+            </button>
+            <button class="floating-btn settings-btn" onclick="loadVoucherForm('defaults')" title="Default Settings">
+                ⚙️
+            </button>
+        </div>
 
         <main class="main-content" id="main-content">
             <!-- Welcome Page -->
             <div id="welcome-page" class="page active">
-                <div class="welcome-content">
-                    <h2>Welcome to SLTB Payment Voucher System</h2>
-                    <p>Select a voucher type from the navigation menu to begin:</p>
-                    
-                    <div class="voucher-types">
-                        <div class="voucher-card" onclick="loadVoucherForm('payment')">
-                            <h3>Payment Voucher</h3>
-                            <p>Create standard payment vouchers with detailed expenditure breakdown</p>
-                        </div>
-                        
-                        <div class="voucher-card" onclick="loadVoucherForm('advance-payment')">
-                            <h3>Advance Payment Voucher</h3>
-                            <p>Process advance payments for future services or goods</p>
-                        </div>
-                        
-                        <div class="voucher-card" onclick="loadVoucherForm('advance-settlement')">
-                            <h3>Advance Payment Settlement</h3>
-                            <p>Settle previously issued advance payments</p>
-                        </div>
-                        
-                        <div class="voucher-card" onclick="loadVoucherForm('petty-cash')">
-                            <h3>Petty Cash Voucher</h3>
-                            <p>Handle small cash transactions and expenses</p>
-                        </div>
+                <div class="welcome-hero">
+                    <div class="hero-content">
+                        <div class="hero-icon">📋</div>
+                        <h1>Voucher Management</h1>
+                        <p>Digital solution for SLTB payment processing</p>
                     </div>
-
-                    <div class="system-info">
-                        <h3>System Guidelines</h3>
-                        <ul>
-                            <li>Fill all required fields before generating PDF</li>
-                            <li>Use the "Change Default" settings to save frequently used data</li>
-                            <li>Generated vouchers are automatically saved to Documents/SLTB_Vouchers</li>
-                            <li>Print preview is available before final printing</li>
-                        </ul>
+                    
+                    <div class="quick-actions">
+                        <div class="action-btn" onclick="loadVoucherForm('payment')" title="Standard Payment Voucher">
+                            <div class="btn-icon">💰</div>
+                            <span>Payment</span>
+                        </div>
+                        
+                        <div class="action-btn" onclick="loadVoucherForm('advance-payment')" title="Advance Payment Voucher">
+                            <div class="btn-icon">⚡</div>
+                            <span>Advance</span>
+                        </div>
+                        
+                        <div class="action-btn" onclick="loadVoucherForm('advance-settlement')" title="Settlement Voucher">
+                            <div class="btn-icon">✅</div>
+                            <span>Settlement</span>
+                        </div>
+                        
+                        <div class="action-btn" onclick="loadVoucherForm('petty-cash')" title="Petty Cash Voucher">
+                            <div class="btn-icon">🪙</div>
+                            <span>Petty Cash</span>
+                        </div>
                     </div>
                 </div>
             </div>

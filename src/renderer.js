@@ -254,7 +254,10 @@ function loadSpecificVoucherForm(type) {
 function generatePaymentVoucherForm() {
     return `
     <div class="page active voucher-form" id="payment-voucher-form">
-        <h2>Payment Voucher</h2>
+        <div class="form-header">
+            <button class="back-btn" onclick="loadVoucherForm('welcome')" title="Back to Home">← Back</button>
+            <h2>Payment Voucher</h2>
+        </div>
         
         <form id="voucher-form" class="form-container">
             <div class="form-row">
@@ -420,7 +423,10 @@ function generatePaymentVoucherForm() {
 function generateAdvancePaymentVoucherForm() {
     return `
     <div class="page active voucher-form" id="advance-payment-voucher-form">
-        <h2>Advance Payment Voucher</h2>
+        <div class="form-header">
+            <button class="back-btn" onclick="loadVoucherForm('welcome')" title="Back to Home">← Back</button>
+            <h2>Advance Payment Voucher</h2>
+        </div>
         
         <form id="voucher-form" class="form-container">
             <div class="form-row">
@@ -586,7 +592,10 @@ function generateAdvancePaymentVoucherForm() {
 function generateAdvanceSettlementVoucherForm() {
     return `
     <div class="page active voucher-form" id="advance-settlement-voucher-form">
-        <h2>Advance Payment Settlement Voucher</h2>
+        <div class="form-header">
+            <button class="back-btn" onclick="loadVoucherForm('welcome')" title="Back to Home">← Back</button>
+            <h2>Advance Payment Settlement Voucher</h2>
+        </div>
         
         <form id="voucher-form" class="form-container">
             <div class="form-row">
@@ -752,7 +761,10 @@ function generateAdvanceSettlementVoucherForm() {
 function generatePettyCashVoucherForm() {
     return `
     <div class="page active voucher-form" id="petty-cash-voucher-form">
-        <h2>Petty Cash Voucher</h2>
+        <div class="form-header">
+            <button class="back-btn" onclick="loadVoucherForm('welcome')" title="Back to Home">← Back</button>
+            <h2>Petty Cash Voucher</h2>
+        </div>
         
         <form id="voucher-form" class="form-container">
             <div class="form-row">
