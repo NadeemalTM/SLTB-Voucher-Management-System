@@ -1293,19 +1293,50 @@ function collectFormData() {
     
     // Collect expenditure data for all voucher types (all now have expenditure tables)
     data.expenditures = [];
-    for (let i = 1; i <= expenditureCount; i++) {
-        const desc = document.querySelector(`[name="expenditure-desc-${i}"]`)?.value;
-        const rate = document.querySelector(`[name="expenditure-rate-${i}"]`)?.value;
-        const units = document.querySelector(`[name="expenditure-units-${i}"]`)?.value;
-        const amount = document.querySelector(`[name="expenditure-amount-${i}"]`)?.value;
+    
+    // More robust collection: scan all existing expenditure rows
+    const expenditureRows = document.querySelectorAll('#expenditure-tbody tr');
+    console.log('Data Collection - expenditureCount:', expenditureCount);
+    console.log('Data Collection - actual rows found:', expenditureRows.length);
+    
+    expenditureRows.forEach((row, index) => {
+        const desc = row.querySelector('textarea[name*="expenditure-desc"]')?.value;
+        const rate = row.querySelector('input[name*="expenditure-rate"]')?.value;
+        const units = row.querySelector('input[name*="expenditure-units"]')?.value;
+        const amount = row.querySelector('input[name*="expenditure-amount"]')?.value;
+        
+        console.log(`Row ${index + 1}:`, { desc, rate, units, amount });
         
         if (desc || rate || units || amount) {
             data.expenditures.push({ desc, rate, units, amount });
         }
-    }
+    });
     
-    // Collect total amount
+    console.log('Data Collection - Total expenditures collected:', data.expenditures.length);
+    
+    // Collect subtotal and tax information
+    const subtotalElement = document.getElementById('subtotal');
+    const ssclVatInput = document.getElementById('sscl-vat');
+    const vatInput = document.getElementById('vat');
+    const ssclAmountElement = document.getElementById('sscl-amount');
+    const vatAmountElement = document.getElementById('vat-amount');
     const totalElement = document.getElementById('total-payment');
+    
+    if (subtotalElement) {
+        data.subtotal = subtotalElement.textContent || subtotalElement.value || '0.00';
+    }
+    if (ssclVatInput) {
+        data.ssclVat = ssclVatInput.value || '0';
+    }
+    if (vatInput) {
+        data.vat = vatInput.value || '0';
+    }
+    if (ssclAmountElement) {
+        data.ssclAmount = ssclAmountElement.textContent || '0.00';
+    }
+    if (vatAmountElement) {
+        data.vatAmount = vatAmountElement.textContent || '0.00';
+    }
     if (totalElement) {
         data.totalAmount = totalElement.textContent || totalElement.value || '0.00';
     }
@@ -1523,10 +1554,20 @@ function generatePDFDocument(jsPDF) {
         doc.text('Tea Board', margin + logoSize/2, margin + logoSize/2 + 6, { align: 'center' });
     }
     
-    // Title section (center) - optimized spacing
+    // Calculate available space for title (avoiding right-side boxes)
+    const headerRight = pageWidth - margin - 70;
+    const titleAreaWidth = headerRight - margin - logoSize - 10; // Available width for title
+    const titleCenterX = margin + logoSize + 5 + (titleAreaWidth / 2); // Center within available space
+    
+    // Debug positioning
+    console.log('PDF Title Layout:', {
+        pageWidth, headerRight, titleAreaWidth, titleCenterX, logoSize
+    });
+    
+    // Title section - positioned to avoid overlap
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14); // Reduced from 16
-    doc.text('Sri Lanka Tea Board', pageWidth/2, margin + 8, { align: 'center' });
+    doc.text('Sri Lanka Tea Board', titleCenterX, margin + 8, { align: 'center' });
     
     // Get voucher title
     let title = '';
@@ -1545,11 +1586,45 @@ function generatePDFDocument(jsPDF) {
             break;
     }
     
-    doc.setFontSize(12); // Reduced from 14
-    doc.text(title, pageWidth/2, margin + 18, { align: 'center' });
+    // Handle long titles by adjusting font size or splitting text
+    doc.setFontSize(12);
+    let titleFontSize = 12;
     
-    // Voucher No and Date boxes (top right) - optimized
-    const headerRight = pageWidth - margin - 70;
+    // Check if title is too wide and adjust accordingly
+    const titleWidth = doc.getTextWidth(title);
+    console.log('Title width check:', { title, titleWidth, titleAreaWidth });
+    
+    if (titleWidth > titleAreaWidth) {
+        // Try smaller font first
+        titleFontSize = 10;
+        doc.setFontSize(titleFontSize);
+        
+        // If still too wide, split into multiple lines
+        if (doc.getTextWidth(title) > titleAreaWidth) {
+            const words = title.split(' ');
+            
+            // Handle specific long titles with better splits
+            if (title === 'Advance Payment Settlement Voucher') {
+                doc.text('Advance Payment', titleCenterX, margin + 16, { align: 'center' });
+                doc.text('Settlement Voucher', titleCenterX, margin + 22, { align: 'center' });
+            } else if (words.length > 2) {
+                // Split long titles into two lines
+                const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+                const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+                
+                doc.text(line1, titleCenterX, margin + 16, { align: 'center' });
+                doc.text(line2, titleCenterX, margin + 22, { align: 'center' });
+            } else {
+                doc.text(title, titleCenterX, margin + 18, { align: 'center' });
+            }
+        } else {
+            doc.text(title, titleCenterX, margin + 18, { align: 'center' });
+        }
+    } else {
+        doc.text(title, titleCenterX, margin + 18, { align: 'center' });
+    }
+    
+    // Voucher No and Date boxes (top right) - using previously calculated headerRight
     const boxWidth = 70;
     const boxHeight = 12; // Reduced height
     
@@ -1623,9 +1698,16 @@ function generatePDFDocument(jsPDF) {
     
     currentY += rowHeight + 2; // Minimal spacing
     
-    // Expenditure table - optimized for single page
-    const tableHeight = 50; // Reduced from 80
+    // Expenditure table - dynamic height based on number of items
+    const numItems = formData.expenditures ? formData.expenditures.filter(exp => exp.desc && exp.desc.trim()).length : 0;
+    const minTableHeight = 65; // Minimum height for subtotal breakdown
+    const itemRowHeight = 4; // Height per expenditure row
+    const maxTableHeight = 120; // Maximum height before considering page break
+    const calculatedHeight = 40 + (numItems * itemRowHeight) + 32; // header + items + subtotal section
+    const tableHeight = Math.min(Math.max(minTableHeight, calculatedHeight), maxTableHeight);
     const tableWidth = usableWidth;
+    
+    console.log('PDF Generation - Table sizing:', { numItems, calculatedHeight, tableHeight });
     
     // Draw main expenditure table border
     doc.rect(margin, currentY, tableWidth, tableHeight);
@@ -1657,38 +1739,104 @@ function generatePDFDocument(jsPDF) {
     doc.text('Months', margin + col1Width + col2Width + col3Width/2, currentY + 9, { align: 'center' });
     doc.text('Amount Rs', margin + col1Width + col2Width + col3Width + col4Width/2, currentY + 8, { align: 'center' });
     
-    // Content rows - optimized spacing
+    // Content rows - optimized spacing for subtotal breakdown
     if (formData.expenditures && formData.expenditures.length > 0) {
-        let rowY = currentY + headerHeight + 4;
+        let rowY = currentY + headerHeight + 3;
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(7); // Reduced font size
         
-        formData.expenditures.slice(0, 4).forEach((exp, index) => { // Limit to 4 rows for single page
-            if (exp.desc && exp.desc.trim() && rowY < currentY + tableHeight - 12) {
-                const displayDesc = truncateText(doc, exp.desc, col1Width - 2, 7);
-                doc.text(displayDesc, margin + 1, rowY);
+        let itemsDisplayed = 0;
+        formData.expenditures.forEach((exp, index) => { // Show ALL expenditure items
+            if (exp.desc && exp.desc.trim() && rowY < currentY + tableHeight - 40) {
+                const displayDesc = truncateText(doc, exp.desc, col1Width - 4, 7);
+                doc.text(displayDesc, margin + 2, rowY);
                 
-                const rateText = truncateText(doc, exp.rate || '0', col2Width - 2, 7);
-                const unitsText = truncateText(doc, exp.units || '0', col3Width - 2, 7);
-                const amountText = truncateText(doc, exp.amount || '0', col4Width - 2, 7);
+                const rateText = truncateText(doc, exp.rate || '0', col2Width - 4, 7);
+                const unitsText = truncateText(doc, exp.units || '0', col3Width - 4, 7);
+                const amountText = truncateText(doc, exp.amount || '0', col4Width - 4, 7);
                 
-                doc.text(rateText, margin + col1Width + 2, rowY);
-                doc.text(unitsText, margin + col1Width + col2Width + 2, rowY);
-                doc.text(amountText, margin + col1Width + col2Width + col3Width + 2, rowY);
-                rowY += 5; // Reduced row spacing
+                // Right-align numerical values
+                doc.text(rateText, margin + col1Width + col2Width - 2, rowY, { align: 'right' });
+                doc.text(unitsText, margin + col1Width + col2Width + col3Width - 2, rowY, { align: 'right' });
+                doc.text(amountText, margin + col1Width + col2Width + col3Width + col4Width - 2, rowY, { align: 'right' });
+                rowY += itemRowHeight; // Use consistent row spacing
+                itemsDisplayed++;
             }
         });
+        
+        console.log('PDF Generation - Items displayed:', itemsDisplayed, 'out of', formData.expenditures.length);
     }
     
-    // Total Payment row at bottom
-    const totalRowY = currentY + tableHeight - 10;
-    doc.line(margin, totalRowY, margin + tableWidth, totalRowY);
+    // Subtotal and Tax breakdown rows at bottom
+    const subtotalRowY = currentY + tableHeight - 40; // Create space for multiple rows
     
+    // Calculate values
+    const subtotal = parseFloat(formData.subtotal || '0');
+    const ssclVat = parseFloat(formData.ssclVat || '0');
+    const vat = parseFloat(formData.vat || '0');
+    const ssclAmount = (subtotal * ssclVat) / 100;
+    const vatAmount = (subtotal * vat) / 100;
+    const totalAmount = subtotal + ssclAmount + vatAmount;
+    
+    // Debug log
+    console.log('PDF Generation - Tax Breakdown:', {
+        subtotal, ssclVat, vat, ssclAmount, vatAmount, totalAmount
+    });
+    console.log('PDF Generation - Column Widths:', {
+        col1Width, col2Width, col3Width, col4Width, tableWidth
+    });
+    console.log('PDF Generation - Expenditure Items:', formData.expenditures);
+    console.log('PDF Generation - Number of Items:', numItems, 'Table Height:', tableHeight);
+    
+    // Calculate exact column positions for proper alignment
+    const col1X = margin + 2; // Description column start (with padding)
+    const col2X = margin + col1Width + 2; // Rate column start (with padding)
+    const col3X = margin + col1Width + col2Width + 2; // Units column start (with padding)
+    const col4X = margin + col1Width + col2Width + col3Width + 2; // Amount column start (with padding)
+    
+    // Calculate right-aligned positions for numbers
+    const col2RightX = margin + col1Width + col2Width - 2; // Rate column right align
+    const col3RightX = margin + col1Width + col2Width + col3Width - 2; // Units column right align
+    const col4RightX = margin + col1Width + col2Width + col3Width + col4Width - 2; // Amount column right align
+    
+    // Subtotal row
+    doc.line(margin, subtotalRowY, margin + tableWidth, subtotalRowY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text('Subtotal Rs.', col1X + col1Width + col2Width - 30, subtotalRowY + 6);
+    doc.text(subtotal.toFixed(2), col4RightX, subtotalRowY + 6, { align: 'right' });
+    
+    // SSCL VAT row
+    const ssclRowY = subtotalRowY + 8;
+    doc.line(margin, ssclRowY, margin + tableWidth, ssclRowY);
+    // Draw vertical lines for SSCL VAT row
+    doc.line(margin + col1Width, ssclRowY, margin + col1Width, ssclRowY + 8);
+    doc.line(margin + col1Width + col2Width, ssclRowY, margin + col1Width + col2Width, ssclRowY + 8);
+    doc.line(margin + col1Width + col2Width + col3Width, ssclRowY, margin + col1Width + col2Width + col3Width, ssclRowY + 8);
+    
+    doc.text('SSCL VAT (%)', col1X, ssclRowY + 6);
+    doc.text(ssclVat.toFixed(2), col3RightX, ssclRowY + 6, { align: 'right' });
+    doc.text(ssclAmount.toFixed(2), col4RightX, ssclRowY + 6, { align: 'right' });
+    
+    // VAT row
+    const vatRowY = ssclRowY + 8;
+    doc.line(margin, vatRowY, margin + tableWidth, vatRowY);
+    // Draw vertical lines for VAT row
+    doc.line(margin + col1Width, vatRowY, margin + col1Width, vatRowY + 8);
+    doc.line(margin + col1Width + col2Width, vatRowY, margin + col1Width + col2Width, vatRowY + 8);
+    doc.line(margin + col1Width + col2Width + col3Width, vatRowY, margin + col1Width + col2Width + col3Width, vatRowY + 8);
+    
+    doc.text('VAT (%)', col1X, vatRowY + 6);
+    doc.text(vat.toFixed(2), col3RightX, vatRowY + 6, { align: 'right' });
+    doc.text(vatAmount.toFixed(2), col4RightX, vatRowY + 6, { align: 'right' });
+    
+    // Total Payment row
+    const totalRowY = vatRowY + 8;
+    doc.line(margin, totalRowY, margin + tableWidth, totalRowY);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8); // Reduced from 10
-    doc.text('Total Payment Rs.', margin + col1Width + col2Width - 15, totalRowY + 6);
-    const totalAmountText = truncateText(doc, formData.totalAmount || '0.00', col4Width - 2, 8);
-    doc.text(totalAmountText, margin + col1Width + col2Width + col3Width + 2, totalRowY + 6);
+    doc.setFontSize(8);
+    doc.text('Total Payment Rs.', col1X + col1Width + col2Width - 30, totalRowY + 6);
+    doc.text(totalAmount.toFixed(2), col4RightX, totalRowY + 6, { align: 'right' });
     
     currentY += tableHeight + 5; // Reduced spacing
     
@@ -1784,22 +1932,59 @@ function generatePDFDocument(jsPDF) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(5); // Very small font for list
     let docY = currentY + 8;
-    const documents = [
-        'Invoice', 'Board Approval', 'FR 136 Approval',
-        'DG/Adm/Procurement Approval', 'Good Received Note (GRN)',
-        'Good Acceptance Committee Report', 'Service Completed Report'
-    ];
     
-    documents.forEach(docName => {
-        if (docY < currentY + documentsHeight - 2) {
-            doc.text(`• ${docName}`, margin + 2, docY);
-            docY += 4; // Reduced spacing
+    // Document mapping for checkbox names to display names
+    const documentMapping = {
+        'doc-invoice': 'Invoice',
+        'doc-board-approval': 'Board Approval', 
+        'doc-fr136': 'FR 136 Approval',
+        'doc-procurement': 'DG/Adm/Procurement Approval',
+        'doc-grn': 'Good Received Note (GRN)',
+        'doc-acceptance': 'Good Acceptance Committee Report',
+        'doc-service': 'Service Completed Report'
+    };
+    
+    // Only show checked documents
+    const checkedDocuments = [];
+    Object.keys(documentMapping).forEach(docKey => {
+        if (formData.documents && formData.documents[docKey]) {
+            checkedDocuments.push(documentMapping[docKey]);
         }
     });
     
-    // Other documents
+    // Debug log
+    console.log('PDF Generation - Document Status:', formData.documents);
+    console.log('PDF Generation - Checked Documents:', checkedDocuments);
+    
+    // Display checked documents or "None" if no documents are checked
+    if (checkedDocuments.length > 0) {
+        checkedDocuments.forEach(docName => {
+            if (docY < currentY + documentsHeight - 2) {
+                doc.text(`• ${docName}`, margin + 2, docY);
+                docY += 4; // Reduced spacing
+            }
+        });
+    } else {
+        doc.text('• None selected', margin + 2, docY);
+    }
+    
+    // Other documents - show actual content from textarea
     doc.setFontSize(5);
-    doc.text('• Other related documents', margin + approvalWidth + 2, currentY + 8);
+    let otherDocY = currentY + 8;
+    const otherDocsText = formData.formData.otherDocuments || '';
+    
+    if (otherDocsText.trim()) {
+        // Split long text into multiple lines
+        const otherDocsLines = wrapText(doc, otherDocsText, approvalWidth - 4, 5);
+        otherDocsLines.slice(0, 8).forEach(line => { // Limit to available space
+            if (otherDocY < currentY + documentsHeight - 2) {
+                doc.text(line, margin + approvalWidth + 2, otherDocY);
+                otherDocY += 3; // Smaller line spacing for other docs
+            }
+        });
+    } else {
+        doc.text('• None specified', margin + approvalWidth + 2, otherDocY);
+    }
     
     // Save PDF with proper filename
     const fileName = `SLTB_${title.replace(/\s+/g, '_')}_${formData.formData.voucherNo || 'draft'}_${new Date().toISOString().split('T')[0]}.pdf`;
