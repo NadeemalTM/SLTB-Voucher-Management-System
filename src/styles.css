@@ -351,7 +351,7 @@ body {
 .form-group textarea {
     width: 100%;
     padding: 16px 20px;
-    border: 2px solid #e8f4f8;
+    border: 2px solid #3498db;
     border-radius: 16px;
     font-size: 15px;
     font-family: inherit;
@@ -371,18 +371,18 @@ body {
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #27ae60;
     background: white;
     box-shadow: 
-        0 0 0 4px rgba(102, 126, 234, 0.1),
-        0 8px 25px rgba(102, 126, 234, 0.15);
+        0 0 0 4px rgba(39, 174, 96, 0.1),
+        0 8px 25px rgba(39, 174, 96, 0.15);
     transform: translateY(-2px);
 }
 
 .form-group input:focus + label,
 .form-group select:focus + label,
 .form-group textarea:focus + label {
-    color: #667eea;
+    color: #27ae60;
 }
 
 /* Textarea Specific */
@@ -409,8 +409,9 @@ body {
 .form-group input:hover:not(:focus),
 .form-group select:hover:not(:focus),
 .form-group textarea:hover:not(:focus) {
-    border-color: #bdc3c7;
+    border-color: #2980b9;
     background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-1px);
 }
 
 /* Read-only Input Styling */
@@ -526,7 +527,7 @@ body {
 .expenditure-table textarea {
     width: 100%;
     padding: 12px;
-    border: 2px solid #e8f4f8;
+    border: 2px solid #3498db;
     border-radius: 10px;
     font-size: 14px;
     font-family: inherit;
@@ -537,9 +538,15 @@ body {
 .expenditure-table input:focus,
 .expenditure-table textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #27ae60;
     background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+.expenditure-table input:hover:not(:focus),
+.expenditure-table textarea:hover:not(:focus) {
+    border-color: #2980b9;
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .expenditure-table .rate-input,
@@ -552,14 +559,59 @@ body {
 
 /* Table Footer (Totals) */
 .expenditure-table tfoot td {
-    background: rgba(102, 126, 234, 0.05);
+    background: rgba(52, 152, 219, 0.05);
     font-weight: 600;
-    border-top: 2px solid #667eea;
+    border-top: 2px solid #3498db;
+    padding: 12px;
 }
 
 .expenditure-table tfoot strong {
     color: #2c3e50;
     font-size: 1.1rem;
+}
+
+/* Subtotal Row */
+.expenditure-table tfoot tr:first-child td {
+    background: rgba(52, 152, 219, 0.1);
+    border-top: 2px solid #3498db;
+    font-weight: bold;
+}
+
+/* Tax Calculation Rows */
+.expenditure-table tfoot tr:nth-child(2) td,
+.expenditure-table tfoot tr:nth-child(3) td {
+    background: rgba(241, 196, 15, 0.08);
+    border-top: 1px solid #f1c40f;
+}
+
+/* Tax Input Fields in Footer */
+.expenditure-table tfoot input[type="number"] {
+    width: 80px;
+    padding: 8px;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    background: white;
+}
+
+.expenditure-table tfoot input[type="number"]:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.2);
+}
+
+/* Total Row Highlighting */
+.expenditure-table tfoot .total-row td {
+    background: rgba(39, 174, 96, 0.15);
+    border-top: 3px solid #27ae60;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.expenditure-table tfoot .total-row strong {
+    color: #27ae60;
+    font-size: 1.3rem;
 }
 
 /* ===== MODERN BUTTON SYSTEM ===== */

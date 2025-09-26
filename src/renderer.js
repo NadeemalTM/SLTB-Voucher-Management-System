@@ -246,6 +246,10 @@ function loadSpecificVoucherForm(type) {
         // Add expenditure row for all voucher types since all now have the same table structure
         if (type === 'P' || type === 'AP' || type === 'ASP' || type === 'PC') {
             addExpenditureRow();
+            // Initialize calculations to show 0.00 values
+            calculateTotal();
+            // Setup real-time calculation for tax inputs
+            setupTaxCalculationEvents();
         }
     }, 100);
 }
@@ -320,16 +324,23 @@ function generatePaymentVoucherForm() {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>SSCL VAT (%)</strong></td>
-                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" onchange="calculateTotal()"></td>
+                        <td colspan="3" class="text-right"><strong>Subtotal Rs.</strong></td>
+                        <td><strong id="subtotal">0.00</strong></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>VAT (%)</strong></td>
-                        <td><input type="number" id="vat" name="vat" step="0.01" onchange="calculateTotal()"></td>
+                        <td colspan="2" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
+                        <td><strong id="sscl-amount">0.00</strong></td>
                         <td></td>
                     </tr>
                     <tr>
+                        <td colspan="2" class="text-right"><strong>VAT (%)</strong></td>
+                        <td><input type="number" id="vat" name="vat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
+                        <td><strong id="vat-amount">0.00</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr class="total-row">
                         <td colspan="3" class="text-right"><strong>Total Payment Rs.</strong></td>
                         <td><strong id="total-payment">0.00</strong></td>
                         <td></td>
@@ -489,16 +500,23 @@ function generateAdvancePaymentVoucherForm() {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>SSCL VAT (%)</strong></td>
-                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" onchange="calculateTotal()"></td>
+                        <td colspan="3" class="text-right"><strong>Subtotal Rs.</strong></td>
+                        <td><strong id="subtotal">0.00</strong></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>VAT (%)</strong></td>
-                        <td><input type="number" id="vat" name="vat" step="0.01" onchange="calculateTotal()"></td>
+                        <td colspan="2" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
+                        <td><strong id="sscl-amount">0.00</strong></td>
                         <td></td>
                     </tr>
                     <tr>
+                        <td colspan="2" class="text-right"><strong>VAT (%)</strong></td>
+                        <td><input type="number" id="vat" name="vat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
+                        <td><strong id="vat-amount">0.00</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr class="total-row">
                         <td colspan="3" class="text-right"><strong>Total Payment Rs.</strong></td>
                         <td><strong id="total-payment">0.00</strong></td>
                         <td></td>
@@ -658,16 +676,23 @@ function generateAdvanceSettlementVoucherForm() {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>SSCL VAT (%)</strong></td>
-                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" onchange="calculateTotal()"></td>
+                        <td colspan="3" class="text-right"><strong>Subtotal Rs.</strong></td>
+                        <td><strong id="subtotal">0.00</strong></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>VAT (%)</strong></td>
-                        <td><input type="number" id="vat" name="vat" step="0.01" onchange="calculateTotal()"></td>
+                        <td colspan="2" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
+                        <td><strong id="sscl-amount">0.00</strong></td>
                         <td></td>
                     </tr>
                     <tr>
+                        <td colspan="2" class="text-right"><strong>VAT (%)</strong></td>
+                        <td><input type="number" id="vat" name="vat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
+                        <td><strong id="vat-amount">0.00</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr class="total-row">
                         <td colspan="3" class="text-right"><strong>Total Payment Rs.</strong></td>
                         <td><strong id="total-payment">0.00</strong></td>
                         <td></td>
@@ -827,16 +852,23 @@ function generatePettyCashVoucherForm() {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>SSCL VAT (%)</strong></td>
-                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" onchange="calculateTotal()"></td>
+                        <td colspan="3" class="text-right"><strong>Subtotal Rs.</strong></td>
+                        <td><strong id="subtotal">0.00</strong></td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>VAT (%)</strong></td>
-                        <td><input type="number" id="vat" name="vat" step="0.01" onchange="calculateTotal()"></td>
+                        <td colspan="2" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
+                        <td><strong id="sscl-amount">0.00</strong></td>
                         <td></td>
                     </tr>
                     <tr>
+                        <td colspan="2" class="text-right"><strong>VAT (%)</strong></td>
+                        <td><input type="number" id="vat" name="vat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
+                        <td><strong id="vat-amount">0.00</strong></td>
+                        <td></td>
+                    </tr>
+                    <tr class="total-row">
                         <td colspan="3" class="text-right"><strong>Total Payment Rs.</strong></td>
                         <td><strong id="total-payment">0.00</strong></td>
                         <td></td>
@@ -1035,10 +1067,10 @@ function addExpenditureRow() {
     expenditureCount++;
     const row = document.createElement('tr');
     row.innerHTML = `
-        <td><textarea name="expenditure-desc-${expenditureCount}" placeholder="Description..." rows="2"></textarea></td>
-        <td><input type="number" name="expenditure-rate-${expenditureCount}" step="0.01" class="rate-input" onchange="calculateRowTotal(${expenditureCount})"></td>
-        <td><input type="text" name="expenditure-units-${expenditureCount}" class="units-input" onchange="calculateRowTotal(${expenditureCount})"></td>
-        <td><input type="number" name="expenditure-amount-${expenditureCount}" step="0.01" class="amount-input" readonly></td>
+        <td><textarea name="expenditure-desc-${expenditureCount}" placeholder="Description of service rendered, work executed or goods supplied..." rows="2"></textarea></td>
+        <td><input type="number" name="expenditure-rate-${expenditureCount}" step="0.01" class="rate-input" placeholder="0.00" onchange="calculateRowTotal(${expenditureCount})" oninput="calculateRowTotal(${expenditureCount})"></td>
+        <td><input type="number" name="expenditure-units-${expenditureCount}" step="0.01" class="units-input" placeholder="1" onchange="calculateRowTotal(${expenditureCount})" oninput="calculateRowTotal(${expenditureCount})"></td>
+        <td><input type="number" name="expenditure-amount-${expenditureCount}" step="0.01" class="amount-input" placeholder="0.00" readonly></td>
         <td><button type="button" class="btn btn-danger btn-sm" onclick="removeExpenditureRow(this)">Remove</button></td>
     `;
     tbody.appendChild(row);
@@ -1072,22 +1104,65 @@ function calculateTotal() {
     
     // Sum all expenditure amounts
     const amountInputs = document.querySelectorAll('.amount-input');
+    console.log(`Found ${amountInputs.length} amount inputs`);
+    
     amountInputs.forEach(input => {
-        subtotal += parseFloat(input.value) || 0;
+        const value = parseFloat(input.value) || 0;
+        subtotal += value;
+        console.log(`Amount input value: ${value}, running subtotal: ${subtotal}`);
     });
     
-    // Add taxes
+    // Update subtotal display
+    const subtotalElement = document.getElementById('subtotal');
+    if (subtotalElement) {
+        subtotalElement.textContent = subtotal.toFixed(2);
+        console.log(`Updated subtotal display to: ${subtotal.toFixed(2)}`);
+    } else {
+        console.log('Subtotal element not found!');
+    }
+    
+    // Calculate taxes
     const ssclVat = parseFloat(document.getElementById('sscl-vat')?.value) || 0;
     const vat = parseFloat(document.getElementById('vat')?.value) || 0;
     
     const ssclAmount = (subtotal * ssclVat) / 100;
     const vatAmount = (subtotal * vat) / 100;
     
+    // Update tax amounts display
+    const ssclAmountElement = document.getElementById('sscl-amount');
+    const vatAmountElement = document.getElementById('vat-amount');
+    
+    if (ssclAmountElement) {
+        ssclAmountElement.textContent = ssclAmount.toFixed(2);
+    }
+    if (vatAmountElement) {
+        vatAmountElement.textContent = vatAmount.toFixed(2);
+    }
+    
+    // Calculate and display total
     const total = subtotal + ssclAmount + vatAmount;
     
     const totalElement = document.getElementById('total-payment');
     if (totalElement) {
         totalElement.textContent = total.toFixed(2);
+    }
+    
+    console.log(`Calculation: Subtotal: ${subtotal.toFixed(2)}, SSCL VAT (${ssclVat}%): ${ssclAmount.toFixed(2)}, VAT (${vat}%): ${vatAmount.toFixed(2)}, Total: ${total.toFixed(2)}`);
+}
+
+// Setup real-time calculation events for tax inputs
+function setupTaxCalculationEvents() {
+    const ssclVatInput = document.getElementById('sscl-vat');
+    const vatInput = document.getElementById('vat');
+    
+    if (ssclVatInput) {
+        ssclVatInput.addEventListener('input', calculateTotal);
+        ssclVatInput.addEventListener('change', calculateTotal);
+    }
+    
+    if (vatInput) {
+        vatInput.addEventListener('input', calculateTotal);
+        vatInput.addEventListener('change', calculateTotal);
     }
 }
 
