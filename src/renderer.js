@@ -51,9 +51,21 @@ function populateDefaultsForm() {
     
     // Populate with saved defaults
     Object.keys(defaultSettings).forEach(key => {
-        const element = form.querySelector(`[name="${key}"]`) || form.querySelector(`#default-${key}`);
+        let element = form.querySelector(`[name="${key}"]`);
+        
+        // Try different ID patterns
+        if (!element) {
+            element = form.querySelector(`#default-${key}`);
+        }
+        if (!element) {
+            // Handle kebab-case IDs (like default-file-reference)
+            const kebabKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+            element = form.querySelector(`#default-${kebabKey}`);
+        }
+        
         if (element) {
             element.value = defaultSettings[key] || '';
+            console.log(`Loaded default value for ${key}:`, defaultSettings[key]);
         }
     });
 }
@@ -1267,28 +1279,49 @@ function collectFormData() {
         formData: {}
     };
     
-    // Collect basic form data
+    // Collect basic form data with effective values (manual or default)
     for (let [key, value] of formData.entries()) {
         data.formData[key] = value;
     }
     
-    // Collect approval data from all input fields (including those outside the main form)
+    // Use effective values for key fields (manual data priority, defaults as fallback)
+    const keyFields = ['fileReference', 'sltbSection', 'payableTo', 'expenditureCode'];
+    keyFields.forEach(fieldName => {
+        // Only use effective value if the field is empty or not collected yet
+        if (!data.formData[fieldName] || data.formData[fieldName].trim() === '') {
+            const effectiveValue = getEffectiveValueByField(fieldName);
+            if (effectiveValue && effectiveValue.trim()) {
+                data.formData[fieldName] = effectiveValue;
+            }
+        }
+    });
+    
+    // Collect approval data using effective values (manual data priority, defaults as fallback)
     const approvalFields = [
         'preparedBy', 'checkedBy', 'recommendedByFirst', 'recommendedBySecond',
         'paymentApprovedBy', 'voucherCertifiedBy'
     ];
     
     approvalFields.forEach(fieldName => {
-        const field = document.querySelector(`[name="${fieldName}"]`);
-        if (field && field.value) {
-            data.formData[fieldName] = field.value;
+        // Only use effective value if not already collected or empty
+        if (!data.formData[fieldName] || data.formData[fieldName].trim() === '') {
+            const effectiveValue = getEffectiveValueByField(fieldName);
+            if (effectiveValue && effectiveValue.trim()) {
+                data.formData[fieldName] = effectiveValue;
+            }
         }
     });
     
-    // Collect other documents textarea
+    // Collect other documents textarea with effective value (manual priority)
     const otherDocs = document.querySelector('[name="otherDocuments"]');
-    if (otherDocs && otherDocs.value) {
-        data.formData.otherDocuments = otherDocs.value;
+    if (otherDocs) {
+        // Only use effective value if field is empty or not collected yet
+        if (!data.formData.otherDocuments || data.formData.otherDocuments.trim() === '') {
+            const effectiveValue = getEffectiveValue(otherDocs);
+            if (effectiveValue && effectiveValue.trim()) {
+                data.formData.otherDocuments = effectiveValue;
+            }
+        }
     }
     
     // Collect expenditure data for all voucher types (all now have expenditure tables)
@@ -2065,7 +2098,7 @@ function loadDefaultsToForm() {
         
         // Show success message
         const count = Object.keys(defaultSettings).length;
-        showMessage(`Successfully loaded ${count} default values into form!`, 'success');
+        showMessage(`✅ Smart defaults loaded! ${count} fields now have default placeholders. Manual entries will override defaults in PDF.`, 'success');
         console.log('Manual load defaults completed successfully');
         
     } catch (error) {
@@ -2200,10 +2233,20 @@ function populateFormDefaultsSimplified() {
                         console.log(`✓ Auto-filled radio ${key}: ${value}`);
                     }
                 } else {
-                    // Handle text inputs, textareas, etc.
+                    // Handle text inputs, textareas, etc. - USE PLACEHOLDERS instead of overwriting values
                     const oldValue = element.value;
-                    element.value = value;
-                    console.log(`✓ Auto-filled ${element.type || 'input'} ${key}: "${oldValue}" → "${value}"`);
+                    
+                    // Only set default if field is empty (preserve manual data)
+                    if (!oldValue || oldValue.trim() === '') {
+                        // Set as placeholder instead of value
+                        element.placeholder = value;
+                        element.setAttribute('data-default-value', value); // Store default for PDF generation
+                        console.log(`✓ Set placeholder for ${element.type || 'input'} ${key}: "${value}"`);
+                    } else {
+                        // Field has manual data - just store default for fallback
+                        element.setAttribute('data-default-value', value);
+                        console.log(`ℹ️ Manual data preserved for ${key}: "${oldValue}" (default available: "${value}")`);
+                    }
                 }
                 
                 // Trigger change event to update any listeners
@@ -2223,6 +2266,49 @@ function populateFormDefaultsSimplified() {
 
 // Make sure the function is available globally
 window.loadDefaultsToForm = loadDefaultsToForm;
+
+// Helper function to get effective value (manual data or default fallback)
+function getEffectiveValue(element) {
+    if (!element) return '';
+    
+    // If element has manual data (value), use it
+    if (element.value && element.value.trim() !== '') {
+        console.log(`Using manual data for ${element.name || element.id}:`, element.value);
+        return element.value;
+    }
+    
+    // Otherwise, use stored default value
+    const defaultValue = element.getAttribute('data-default-value');
+    if (defaultValue) {
+        console.log(`Using default value for ${element.name || element.id}:`, defaultValue);
+        return defaultValue;
+    }
+    
+    return '';
+}
+
+// Helper function to get effective value by field name/id
+function getEffectiveValueByField(fieldName) {
+    // Try multiple selectors to find the field
+    const selectors = [
+        `[name="${fieldName}"]`,
+        `#${fieldName}`,
+        `#${fieldName.replace(/([A-Z])/g, '-$1').toLowerCase()}`
+    ];
+    
+    for (const selector of selectors) {
+        try {
+            const element = document.querySelector(selector);
+            if (element) {
+                return getEffectiveValue(element);
+            }
+        } catch (e) {
+            // Continue to next selector
+        }
+    }
+    
+    return '';
+}
 
 // Simple test function to create only "Prepared by" default for auto-fill testing
 function createTestDefaults() {

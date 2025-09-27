@@ -444,6 +444,37 @@ body {
     background: rgba(39, 174, 96, 0.05);
 }
 
+/* Help Text */
+.help-text {
+    display: block;
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-top: 4px;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+/* Fields with Default Values Available */
+input[data-default-value]:not([data-default-value=""]),
+textarea[data-default-value]:not([data-default-value=""]),
+select[data-default-value]:not([data-default-value=""]) {
+    background: linear-gradient(45deg, rgba(52, 152, 219, 0.02), rgba(52, 152, 219, 0.05));
+    position: relative;
+}
+
+input[data-default-value]:not([data-default-value=""]):empty,
+textarea[data-default-value]:not([data-default-value=""]):empty {
+    border-left: 3px solid #3498db;
+}
+
+/* Placeholder styling for fields with defaults */
+input[data-default-value]::placeholder,
+textarea[data-default-value]::placeholder {
+    color: #3498db;
+    font-style: italic;
+    opacity: 0.8;
+}
+
 /* ===== MODERN TABLE DESIGN ===== */
 
 /* Expenditure Section */

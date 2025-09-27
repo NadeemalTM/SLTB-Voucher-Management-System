@@ -63,7 +63,7 @@
             <!-- Default Settings Page -->
             <div id="defaults-page" class="page">
                 <h2>Default Settings</h2>
-                <p class="info-text">Configure the default "Prepared by" value that will automatically fill in all voucher forms.</p>
+                <p class="info-text">Configure default values that will automatically fill in all voucher forms. Set your name and commonly used file references to save time.</p>
                 
                 <form id="defaults-form" class="form-container">
                     <h3>Auto-Fill Settings</h3>
@@ -71,6 +71,14 @@
                         <div class="form-group">
                             <label for="default-prepared-by">Prepared by:</label>
                             <input type="text" id="default-prepared-by" name="preparedBy" placeholder="Enter your full name" style="width: 400px;">
+                            <small class="help-text">This will auto-fill the Prepared by field in all voucher forms</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="default-file-reference">File Reference:</label>
+                            <input type="text" id="default-file-reference" name="fileReference" placeholder="e.g., FIN/2025/001, ADM/REF/2025" style="width: 400px;">
+                            <small class="help-text">This will auto-fill the File Reference field in all voucher forms</small>
                         </div>
                     </div>
 
