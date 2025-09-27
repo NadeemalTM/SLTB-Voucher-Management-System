@@ -2118,6 +2118,19 @@ function populateFormDefaultsSimplified() {
     
     console.log(`📝 Auto-filling ${Object.keys(defaultSettings).length} default values into current form...`);
     
+    // Debug: Check what preparedBy elements are available
+    const allPreparedByInputs = document.querySelectorAll('input[name="preparedBy"]');
+    console.log('🔍 DEBUG: Found preparedBy inputs:', allPreparedByInputs.length);
+    allPreparedByInputs.forEach((input, index) => {
+        console.log(`   preparedBy input ${index}:`, {
+            name: input.name,
+            id: input.id,
+            placeholder: input.placeholder,
+            value: input.value,
+            visible: input.offsetParent !== null
+        });
+    });
+    
     // Set today's date first
     const dateInput = document.getElementById('voucher-date');
     if (dateInput && !dateInput.value) {
@@ -2160,7 +2173,37 @@ function populateFormDefaultsSimplified() {
             }
         }
         
-        // Strategy 4: Try input with placeholder matching (fallback)
+        // Strategy 4: Try exact name matching first
+        if (!element) {
+            element = document.querySelector(`input[name="${key}"]`) || 
+                     document.querySelector(`select[name="${key}"]`) || 
+                     document.querySelector(`textarea[name="${key}"]`);
+            
+            // Special handling for preparedBy - it exists in forms but might not be found
+            if (!element && key === 'preparedBy') {
+                // Try all possible selectors for preparedBy
+                const selectors = [
+                    'input[name="preparedBy"]',
+                    'input[id="prepared-by"]',
+                    'input[placeholder*="Name"]:first-of-type', // First name input might be preparedBy
+                    '.approval-section input[type="text"]:first-of-type' // First input in approval section
+                ];
+                
+                for (const selector of selectors) {
+                    try {
+                        element = document.querySelector(selector);
+                        if (element) {
+                            console.log(`Found preparedBy using special selector: ${selector}`);
+                            break;
+                        }
+                    } catch (e) {
+                        console.log(`Selector failed: ${selector}`, e);
+                    }
+                }
+            }
+        }
+        
+        // Strategy 5: Try input with placeholder matching (fallback)
         if (!element) {
             const possibleSelectors = [
                 `input[placeholder*="${key}"]`,
@@ -2197,6 +2240,16 @@ function populateFormDefaultsSimplified() {
         if (element) {
             try {
                 console.log(`Found element for ${key}:`, element.tagName, element.name || 'no-name', element.id || 'no-id');
+                
+                // Special debug for preparedBy
+                if (key === 'preparedBy') {
+                    console.log('DEBUG preparedBy - Element found:', element);
+                    console.log('DEBUG preparedBy - Element tag:', element.tagName);
+                    console.log('DEBUG preparedBy - Element name:', element.name);
+                    console.log('DEBUG preparedBy - Element id:', element.id);
+                    console.log('DEBUG preparedBy - Current value:', element.value);
+                    console.log('DEBUG preparedBy - Will set placeholder to:', value);
+                }
                 
                 // Skip if element is disabled or readonly and user wants to be able to edit
                 if (element.disabled || element.readOnly) {
@@ -2236,12 +2289,27 @@ function populateFormDefaultsSimplified() {
                     // Handle text inputs, textareas, etc. - USE PLACEHOLDERS instead of overwriting values
                     const oldValue = element.value;
                     
+                    // Special detailed debug for preparedBy
+                    if (key === 'preparedBy') {
+                        console.log('🔍 DETAILED DEBUG for preparedBy:');
+                        console.log('   - Element:', element);
+                        console.log('   - Current value:', `"${oldValue}"`);
+                        console.log('   - Current placeholder:', `"${element.placeholder}"`);
+                        console.log('   - Default value to set:', `"${value}"`);
+                    }
+                    
                     // Only set default if field is empty (preserve manual data)
                     if (!oldValue || oldValue.trim() === '') {
                         // Set as placeholder instead of value
                         element.placeholder = value;
                         element.setAttribute('data-default-value', value); // Store default for PDF generation
                         console.log(`✓ Set placeholder for ${element.type || 'input'} ${key}: "${value}"`);
+                        
+                        // Additional debug for preparedBy
+                        if (key === 'preparedBy') {
+                            console.log('✅ preparedBy placeholder set successfully!');
+                            console.log('   - New placeholder:', `"${element.placeholder}"`);
+                        }
                     } else {
                         // Field has manual data - just store default for fallback
                         element.setAttribute('data-default-value', value);
@@ -2258,6 +2326,32 @@ function populateFormDefaultsSimplified() {
             }
         } else {
             console.warn(`✗ Field not found for key: ${key} - no matching element found`);
+            
+            // Special fallback for preparedBy
+            if (key === 'preparedBy') {
+                console.log('🔍 FALLBACK: Trying manual search for preparedBy...');
+                const manualSearch = document.querySelector('input[name="preparedBy"]');
+                console.log('   Manual search result:', manualSearch);
+                
+                if (manualSearch) {
+                    console.log('✅ Found preparedBy via manual search! Setting placeholder...');
+                    try {
+                        const oldValue = manualSearch.value;
+                        if (!oldValue || oldValue.trim() === '') {
+                            manualSearch.placeholder = value;
+                            manualSearch.setAttribute('data-default-value', value);
+                            console.log('✅ preparedBy placeholder set via fallback!');
+                        } else {
+                            manualSearch.setAttribute('data-default-value', value);
+                            console.log('ℹ️ preparedBy has manual data, storing as fallback');
+                        }
+                    } catch (error) {
+                        console.error('Error in preparedBy fallback:', error);
+                    }
+                } else {
+                    console.log('❌ Manual search for preparedBy also failed');
+                }
+            }
         }
     });
     
