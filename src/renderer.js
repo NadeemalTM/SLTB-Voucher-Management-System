@@ -1460,7 +1460,7 @@ function generatePDF() {
 }
 
 // Helper function to truncate text to fit within specified width
-function truncateText(doc, text, maxWidth, fontSize = 10) {
+function truncateText(doc, text, maxWidth, fontSize = 11) {
     if (!text) return '';
     
     doc.setFontSize(fontSize);
@@ -1480,7 +1480,7 @@ function truncateText(doc, text, maxWidth, fontSize = 10) {
 }
 
 // Helper function to wrap text within specified width
-function wrapText(doc, text, maxWidth, fontSize = 8) {
+function wrapText(doc, text, maxWidth, fontSize = 9) {
     if (!text) return [''];
     
     doc.setFontSize(fontSize);
@@ -1578,11 +1578,11 @@ function generatePDFDocument(jsPDF) {
         
         // SLTB branding text
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(8);
+        doc.setFontSize(9);
         doc.text('SLTB', margin + logoSize/2, margin + logoSize/2 - 2, { align: 'center' });
         
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(6);
+        doc.setFontSize(7);
         doc.text('Sri Lanka', margin + logoSize/2, margin + logoSize/2 + 2, { align: 'center' });
         doc.text('Tea Board', margin + logoSize/2, margin + logoSize/2 + 6, { align: 'center' });
     }
@@ -1599,7 +1599,7 @@ function generatePDFDocument(jsPDF) {
     
     // Title section - positioned to avoid overlap
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14); // Reduced from 16
+    doc.setFontSize(16); // Increased from 14
     doc.text('Sri Lanka Tea Board', titleCenterX, margin + 8, { align: 'center' });
     
     // Get voucher title
@@ -1620,8 +1620,8 @@ function generatePDFDocument(jsPDF) {
     }
     
     // Handle long titles by adjusting font size or splitting text
-    doc.setFontSize(12);
-    let titleFontSize = 12;
+    doc.setFontSize(14);
+    let titleFontSize = 14;
     
     // Check if title is too wide and adjust accordingly
     const titleWidth = doc.getTextWidth(title);
@@ -1629,7 +1629,7 @@ function generatePDFDocument(jsPDF) {
     
     if (titleWidth > titleAreaWidth) {
         // Try smaller font first
-        titleFontSize = 10;
+        titleFontSize = 12;
         doc.setFontSize(titleFontSize);
         
         // If still too wide, split into multiple lines
@@ -1692,7 +1692,7 @@ function generatePDFDocument(jsPDF) {
     doc.line(margin + labelWidth, currentY, margin + labelWidth, currentY + rowHeight);
     doc.line(margin + halfWidth + labelWidth, currentY, margin + halfWidth + labelWidth, currentY + rowHeight);
     
-    doc.setFontSize(8); // Reduced font size
+    doc.setFontSize(9); // Increased font size
     doc.setFont('helvetica', 'bold');
     doc.text('SLTB Section', margin + 1, currentY + 6);
     doc.text('File Reference', margin + halfWidth + 1, currentY + 6);
@@ -1761,7 +1761,7 @@ function generatePDFDocument(jsPDF) {
     doc.line(margin, currentY + headerHeight, margin + tableWidth, currentY + headerHeight);
     
     // Header text - compressed
-    doc.setFontSize(7); // Reduced from 8
+    doc.setFontSize(8); // Increased from 7
     doc.setFont('helvetica', 'bold');
     doc.text('Detailed description of service rendered,', margin + 1, currentY + 4);
     doc.text('work executed or goods supplied and', margin + 1, currentY + 7);
@@ -1776,7 +1776,7 @@ function generatePDFDocument(jsPDF) {
     if (formData.expenditures && formData.expenditures.length > 0) {
         let rowY = currentY + headerHeight + 3;
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(7); // Reduced font size
+        doc.setFontSize(8); // Increased font size
         
         let itemsDisplayed = 0;
         formData.expenditures.forEach((exp, index) => { // Show ALL expenditure items
@@ -1859,6 +1859,7 @@ function generatePDFDocument(jsPDF) {
     doc.line(margin + col1Width + col2Width, vatRowY, margin + col1Width + col2Width, vatRowY + 8);
     doc.line(margin + col1Width + col2Width + col3Width, vatRowY, margin + col1Width + col2Width + col3Width, vatRowY + 8);
     
+    doc.setFontSize(8);
     doc.text('VAT (%)', col1X, vatRowY + 6);
     doc.text(vat.toFixed(2), col3RightX, vatRowY + 6, { align: 'right' });
     doc.text(vatAmount.toFixed(2), col4RightX, vatRowY + 6, { align: 'right' });
@@ -1867,7 +1868,7 @@ function generatePDFDocument(jsPDF) {
     const totalRowY = vatRowY + 8;
     doc.line(margin, totalRowY, margin + tableWidth, totalRowY);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.text('Total Payment Rs.', col1X + col1Width + col2Width - 30, totalRowY + 6);
     doc.text(totalAmount.toFixed(2), col4RightX, totalRowY + 6, { align: 'right' });
     
@@ -1882,14 +1883,14 @@ function generatePDFDocument(jsPDF) {
     doc.rect(margin + approvalWidth, currentY, approvalWidth, approvalHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7); // Reduced from 9
+    doc.setFontSize(8); // Increased from 7
     doc.text('Prepared by', margin + 1, currentY + 5);
     doc.text('Checked By', margin + approvalWidth + 1, currentY + 5);
     
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    const preparedByText = truncateText(doc, formData.formData.preparedBy || '', approvalWidth - 2, 7);
-    const checkedByText = truncateText(doc, formData.formData.checkedBy || '', approvalWidth - 2, 7);
+    doc.setFontSize(8);
+    const preparedByText = truncateText(doc, formData.formData.preparedBy || '', approvalWidth - 2, 8);
+    const checkedByText = truncateText(doc, formData.formData.checkedBy || '', approvalWidth - 2, 8);
     doc.text(preparedByText, margin + 1, currentY + 13);
     doc.text(checkedByText, margin + approvalWidth + 1, currentY + 13);
     
@@ -1900,23 +1901,23 @@ function generatePDFDocument(jsPDF) {
     doc.rect(margin + approvalWidth, currentY, approvalWidth, approvalHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
+    doc.setFontSize(8);
     doc.text('Recommended by (First)', margin + 1, currentY + 5);
     doc.text('Recommended by (Second)', margin + approvalWidth + 1, currentY + 5);
     
     doc.setFont('helvetica', 'normal');
-    const recommendedByFirstText = truncateText(doc, formData.formData.recommendedByFirst || '', approvalWidth - 2, 7);
-    const recommendedBySecondText = truncateText(doc, formData.formData.recommendedBySecond || '', approvalWidth - 2, 7);
+    const recommendedByFirstText = truncateText(doc, formData.formData.recommendedByFirst || '', approvalWidth - 2, 8);
+    const recommendedBySecondText = truncateText(doc, formData.formData.recommendedBySecond || '', approvalWidth - 2, 8);
     doc.text(recommendedByFirstText, margin + 1, currentY + 13);
     doc.text(recommendedBySecondText, margin + approvalWidth + 1, currentY + 13);
     
     currentY += approvalHeight + 3; // Reduced spacing
     
     // Certification text - compressed
-    doc.setFontSize(6); // Much smaller font
+    doc.setFontSize(7); // Increased from 6
     const certificationText = 'I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly authorised and performed and that the payment of Rupees ________________and cents _______ is in accordance with regulations*/ contract*/ fair and reasonable.';
     
-    const certificationLines = wrapText(doc, certificationText, usableWidth, 6);
+    const certificationLines = wrapText(doc, certificationText, usableWidth, 7);
     let certY = currentY;
     certificationLines.slice(0, 2).forEach(line => { // Limit to 2 lines
         doc.text(line, margin, certY);
@@ -1933,18 +1934,18 @@ function generatePDFDocument(jsPDF) {
     doc.rect(margin + approvalWidth, currentY, approvalWidth, finalApprovalHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7); // Reduced from 9
+    doc.setFontSize(8); // Increased from 7
     doc.text('Payment Approved By', margin + 1, currentY + 5);
     doc.text('Voucher Certified By', margin + approvalWidth + 1, currentY + 5);
     
-    doc.setFontSize(6); // Reduced from 8
+    doc.setFontSize(7); // Increased from 6
     doc.text('(FR 137 Approval)', margin + 1, currentY + 9);
     doc.text('(FR 138 Voucher Certification)', margin + approvalWidth + 1, currentY + 9);
     
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    const paymentApprovedByText = truncateText(doc, formData.formData.paymentApprovedBy || '', approvalWidth - 2, 7);
-    const voucherCertifiedByText = truncateText(doc, formData.formData.voucherCertifiedBy || '', approvalWidth - 2, 7);
+    doc.setFontSize(8);
+    const paymentApprovedByText = truncateText(doc, formData.formData.paymentApprovedBy || '', approvalWidth - 2, 8);
+    const voucherCertifiedByText = truncateText(doc, formData.formData.voucherCertifiedBy || '', approvalWidth - 2, 8);
     
     doc.text(paymentApprovedByText, margin + 1, currentY + 17);
     doc.text(voucherCertifiedByText, margin + approvalWidth + 1, currentY + 17);
@@ -1958,12 +1959,12 @@ function generatePDFDocument(jsPDF) {
     doc.rect(margin + approvalWidth, currentY, approvalWidth, documentsHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6); // Much smaller font
+    doc.setFontSize(7); // Increased from 6
     doc.text('Attached the Copies of following Documents', margin + 1, currentY + 4);
     doc.text('Other Documents Attached', margin + approvalWidth + 1, currentY + 4);
     
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(5); // Very small font for list
+    doc.setFontSize(6); // Increased from 5
     let docY = currentY + 8;
     
     // Document mapping for checkbox names to display names
