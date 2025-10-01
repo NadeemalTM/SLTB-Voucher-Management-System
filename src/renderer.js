@@ -1960,12 +1960,12 @@ function generatePDFDocument(jsPDF) {
     doc.rect(margin + approvalWidth, currentY, approvalWidth, approvalHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8); // Increased from 7
+    doc.setFontSize(9); // Increased from 7
     doc.text('Prepared by', margin + 1, currentY + 5);
     doc.text('Checked By', margin + approvalWidth + 1, currentY + 5);
     
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     const preparedByText = truncateText(doc, formData.formData.preparedBy || '', approvalWidth - 2, 8);
     const checkedByText = truncateText(doc, formData.formData.checkedBy || '', approvalWidth - 2, 8);
     doc.text(preparedByText, margin + 1, currentY + 13);
@@ -1978,7 +1978,7 @@ function generatePDFDocument(jsPDF) {
     doc.rect(margin + approvalWidth, currentY, approvalWidth, approvalHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.text('Recommended by (First)', margin + 1, currentY + 5);
     doc.text('Recommended by (Second)', margin + approvalWidth + 1, currentY + 5);
     
@@ -1991,7 +1991,7 @@ function generatePDFDocument(jsPDF) {
     currentY += approvalHeight + 3; // Reduced spacing
     
     // Certification text - compressed with amount in words
-    doc.setFontSize(7); // Increased from 6
+    doc.setFontSize(10); // Increased from 7
     
     // Convert total amount to words
     const totalAmountInWords = amountToWords(totalAmount);
@@ -2002,11 +2002,11 @@ function generatePDFDocument(jsPDF) {
     
     const certificationText = `I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly authorised and performed and that the payment of Rupees ${rupeesInWords} and cents ${centsInWords} is in accordance with regulations*/ contract*/ fair and reasonable.`;
     
-    const certificationLines = wrapText(doc, certificationText, usableWidth, 7);
+    const certificationLines = wrapText(doc, certificationText, usableWidth, 8);
     let certY = currentY;
     certificationLines.slice(0, 3).forEach(line => { // Allow 3 lines for longer text
         doc.text(line, margin, certY);
-        certY += 3;
+        certY += 4; // Increased line spacing for larger font
     });
     
     currentY += 12; // Increased spacing to accommodate longer text
@@ -2044,12 +2044,12 @@ function generatePDFDocument(jsPDF) {
     doc.rect(margin + approvalWidth, currentY, approvalWidth, documentsHeight);
     
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7); // Increased from 6
+    doc.setFontSize(8); // Increased from 6
     doc.text('Attached the Copies of following Documents', margin + 1, currentY + 4);
     doc.text('Other Documents Attached', margin + approvalWidth + 1, currentY + 4);
     
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(6); // Increased from 5
+    doc.setFontSize(8); // Increased from 7 for better readability
     let docY = currentY + 8;
     
     // Document mapping for checkbox names to display names
@@ -2088,13 +2088,13 @@ function generatePDFDocument(jsPDF) {
     }
     
     // Other documents - show actual content from textarea
-    doc.setFontSize(5);
+    doc.setFontSize(8);
     let otherDocY = currentY + 8;
     const otherDocsText = formData.formData.otherDocuments || '';
     
     if (otherDocsText.trim()) {
         // Split long text into multiple lines
-        const otherDocsLines = wrapText(doc, otherDocsText, approvalWidth - 4, 5);
+        const otherDocsLines = wrapText(doc, otherDocsText, approvalWidth - 4, 8);
         otherDocsLines.slice(0, 8).forEach(line => { // Limit to available space
             if (otherDocY < currentY + documentsHeight - 2) {
                 doc.text(line, margin + approvalWidth + 2, otherDocY);
