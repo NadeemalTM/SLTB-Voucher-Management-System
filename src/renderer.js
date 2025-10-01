@@ -2112,9 +2112,50 @@ function generatePDFDocument(jsPDF) {
     showMessage('PDF generated successfully with proper text formatting!', 'success');
 }
 
-// Print voucher
-function printVoucher() {
-    window.print();
+// Print voucher - generates and prints the PDF
+async function printVoucher() {
+    try {
+        // Generate the PDF
+        const doc = await generatePDFDocument();
+        if (!doc) {
+            showMessage('❌ Error generating PDF for printing', 'error');
+            return;
+        }
+
+        // Create a blob from the PDF
+        const pdfBlob = doc.output('blob');
+        
+        // Create a URL for the blob
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        
+        // Open PDF in a new window for printing
+        const printWindow = window.open(pdfUrl, '_blank');
+        
+        if (printWindow) {
+            // Wait for the PDF to load, then trigger print
+            printWindow.onload = function() {
+                printWindow.print();
+                
+                // Clean up the object URL after a delay
+                setTimeout(() => {
+                    URL.revokeObjectURL(pdfUrl);
+                    printWindow.close();
+                }, 1000);
+            };
+        } else {
+            // Fallback: download the PDF if popup is blocked
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = `SLTB_${currentVoucherType}_voucher_${Date.now()}.pdf`;
+            link.click();
+            URL.revokeObjectURL(pdfUrl);
+            showMessage('⚠️ Popup blocked. PDF downloaded instead. Please open and print manually.', 'warning');
+        }
+        
+    } catch (error) {
+        console.error('Print error:', error);
+        showMessage('❌ Error printing voucher: ' + error.message, 'error');
+    }
 }
 
 // Show message
