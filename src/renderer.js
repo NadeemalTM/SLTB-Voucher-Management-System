@@ -435,7 +435,6 @@ function generatePaymentVoucherForm() {
             <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
-            <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
             <button type="button" class="btn btn-info" onclick="printVoucher()">Print</button>
         </div>
@@ -611,7 +610,6 @@ function generateAdvancePaymentVoucherForm() {
             <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
-            <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
             <button type="button" class="btn btn-info" onclick="printVoucher()">Print</button>
         </div>
@@ -787,7 +785,6 @@ function generateAdvanceSettlementVoucherForm() {
             <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
-            <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
             <button type="button" class="btn btn-info" onclick="printVoucher()">Print</button>
         </div>
@@ -963,7 +960,6 @@ function generatePettyCashVoucherForm() {
             <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
-            <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
             <button type="button" class="btn btn-info" onclick="printVoucher()">Print</button>
         </div>
@@ -1990,8 +1986,8 @@ function generatePDFDocument(jsPDF) {
     
     currentY += approvalHeight + 3; // Reduced spacing
     
-    // Certification text - compressed with amount in words
-    doc.setFontSize(10); // Increased from 7
+    // Certification text - compressed with amount in words (bold amounts)
+    doc.setFontSize(8); // Increased from 7
     
     // Convert total amount to words
     const totalAmountInWords = amountToWords(totalAmount);
@@ -2000,16 +1996,48 @@ function generatePDFDocument(jsPDF) {
     const rupeesInWords = numberToWords(rupees);
     const centsInWords = cents > 0 ? numberToWords(cents) : 'Zero';
     
-    const certificationText = `I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly authorised and performed and that the payment of Rupees ${rupeesInWords} and cents ${centsInWords} is in accordance with regulations*/ contract*/ fair and reasonable.`;
+    // Split certification text into parts for mixed formatting
+    const textParts = [
+        { text: 'I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly authorised and performed and that the payment of Rupees ', bold: false },
+        { text: rupeesInWords, bold: true },
+        { text: ' and cents ', bold: false },
+        { text: centsInWords, bold: true },
+        { text: ' is in accordance with regulations*/ contract*/ fair and reasonable.', bold: false }
+    ];
     
-    const certificationLines = wrapText(doc, certificationText, usableWidth, 8);
+    // Render certification text with mixed formatting
     let certY = currentY;
-    certificationLines.slice(0, 3).forEach(line => { // Allow 3 lines for longer text
-        doc.text(line, margin, certY);
-        certY += 4; // Increased line spacing for larger font
+    let currentX = margin;
+    const lineHeight = 4;
+    const maxWidth = usableWidth;
+    
+    doc.setFont('helvetica', 'normal');
+    
+    textParts.forEach(part => {
+        const words = part.text.split(' ');
+        
+        words.forEach((word, index) => {
+            // Set font style for current part
+            doc.setFont('helvetica', part.bold ? 'bold' : 'normal');
+            
+            const wordWithSpace = word + (index < words.length - 1 ? ' ' : '');
+            const wordWidth = doc.getTextWidth(wordWithSpace);
+            
+            // Check if word fits on current line
+            if (currentX + wordWidth > margin + maxWidth && currentX > margin) {
+                // Move to next line
+                certY += lineHeight;
+                currentX = margin;
+            }
+            
+            // Render the word
+            doc.text(wordWithSpace, currentX, certY);
+            currentX += wordWidth;
+        });
     });
     
-    currentY += 12; // Increased spacing to accommodate longer text
+    // Update currentY to position after the certification text
+    currentY = certY + 8; // Spacing after certification text
     
     // Final approval section - compact
     const finalApprovalHeight = 22; // Reduced from 35
