@@ -341,7 +341,7 @@ function generatePaymentVoucherForm() {
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td colspan="2" class="text-right"><strong>SSCL (%)</strong></td>
                         <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
                         <td><strong id="sscl-amount">0.00</strong></td>
                         <td></td>
@@ -516,7 +516,7 @@ function generateAdvancePaymentVoucherForm() {
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td colspan="2" class="text-right"><strong>SSCL (%)</strong></td>
                         <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
                         <td><strong id="sscl-amount">0.00</strong></td>
                         <td></td>
@@ -691,7 +691,7 @@ function generateAdvanceSettlementVoucherForm() {
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td colspan="2" class="text-right"><strong>SSCL (%)</strong></td>
                         <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
                         <td><strong id="sscl-amount">0.00</strong></td>
                         <td></td>
@@ -866,7 +866,7 @@ function generatePettyCashVoucherForm() {
                         <td></td>
                     </tr>
                     <tr>
-                        <td colspan="2" class="text-right"><strong>SSCL VAT (%)</strong></td>
+                        <td colspan="2" class="text-right"><strong>SSCL (%)</strong></td>
                         <td><input type="number" id="sscl-vat" name="ssclVat" step="0.01" placeholder="0" onchange="calculateTotal()"></td>
                         <td><strong id="sscl-amount">0.00</strong></td>
                         <td></td>
@@ -1921,7 +1921,7 @@ function generatePDFDocument(jsPDF) {
     doc.line(margin + col1Width + col2Width, ssclRowY, margin + col1Width + col2Width, ssclRowY + 8);
     doc.line(margin + col1Width + col2Width + col3Width, ssclRowY, margin + col1Width + col2Width + col3Width, ssclRowY + 8);
     
-    doc.text('SSCL VAT (%)', col1X, ssclRowY + 6);
+    doc.text('SSCL (%)', col1X, ssclRowY + 6);
     doc.text(ssclVat.toFixed(2), col3RightX, ssclRowY + 6, { align: 'right' });
     doc.text(ssclAmount.toFixed(2), col4RightX, ssclRowY + 6, { align: 'right' });
     
