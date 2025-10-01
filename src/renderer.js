@@ -1155,7 +1155,7 @@ function calculateTotal() {
         totalElement.textContent = total.toFixed(2);
     }
     
-    console.log(`Calculation: Subtotal: ${subtotal.toFixed(2)}, SSCL VAT (${ssclVat}%): ${ssclAmount.toFixed(2)}, VAT (${vat}%): ${vatAmount.toFixed(2)}, Total: ${total.toFixed(2)}`);
+    console.log(`Calculation: Subtotal: ${subtotal.toFixed(2)}, SSCL (${ssclVat}%): ${ssclAmount.toFixed(2)}, VAT (${vat}%): ${vatAmount.toFixed(2)}, Total: ${total.toFixed(2)}`);
 }
 
 // Setup real-time calculation events for tax inputs
@@ -1943,7 +1943,7 @@ function generatePDFDocument(jsPDF) {
     doc.line(margin, totalRowY, margin + tableWidth, totalRowY);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.text('Total Payment --------  ( Rs.)', col1X + col1Width + col2Width - 30, totalRowY + 6);
+    doc.text('Total Payment ---------------- ( Rs.)', col1X + col1Width + col2Width - 30, totalRowY + 6);
     doc.text(totalAmount.toFixed(2), col4RightX, totalRowY + 6, { align: 'right' });
     
     currentY += tableHeight + 5; // Reduced spacing
