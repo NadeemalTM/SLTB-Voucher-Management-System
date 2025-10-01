@@ -1459,6 +1459,83 @@ function generatePDF() {
         });
 }
 
+// Helper function to convert numbers to words
+function numberToWords(amount) {
+    if (amount === 0) return 'Zero';
+    
+    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 
+                  'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 
+                  'Seventeen', 'Eighteen', 'Nineteen'];
+    
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    
+    const scales = ['', 'Thousand', 'Million', 'Billion'];
+    
+    function convertHundreds(num) {
+        let result = '';
+        
+        if (num >= 100) {
+            result += ones[Math.floor(num / 100)] + ' Hundred';
+            num %= 100;
+            if (num > 0) result += ' ';
+        }
+        
+        if (num >= 20) {
+            result += tens[Math.floor(num / 10)];
+            num %= 10;
+            if (num > 0) result += ' ';
+        }
+        
+        if (num > 0) {
+            result += ones[num];
+        }
+        
+        return result;
+    }
+    
+    if (amount < 0) return 'Negative ' + numberToWords(-amount);
+    
+    let parts = [];
+    let scaleIndex = 0;
+    
+    while (amount > 0) {
+        if (amount % 1000 !== 0) {
+            let part = convertHundreds(amount % 1000);
+            if (scales[scaleIndex]) {
+                part += ' ' + scales[scaleIndex];
+            }
+            parts.unshift(part);
+        }
+        amount = Math.floor(amount / 1000);
+        scaleIndex++;
+    }
+    
+    return parts.join(' ');
+}
+
+// Helper function to convert amount to words with rupees and cents
+function amountToWords(amount) {
+    const rupees = Math.floor(amount);
+    const cents = Math.round((amount - rupees) * 100);
+    
+    let result = '';
+    
+    if (rupees > 0) {
+        result += numberToWords(rupees);
+        result += rupees === 1 ? ' Rupee' : ' Rupees';
+    } else {
+        result += 'Zero Rupees';
+    }
+    
+    if (cents > 0) {
+        if (rupees > 0) result += ' and ';
+        result += numberToWords(cents);
+        result += cents === 1 ? ' Cent' : ' Cents';
+    }
+    
+    return result;
+}
+
 // Helper function to truncate text to fit within specified width
 function truncateText(doc, text, maxWidth, fontSize = 11) {
     if (!text) return '';
@@ -1913,18 +1990,26 @@ function generatePDFDocument(jsPDF) {
     
     currentY += approvalHeight + 3; // Reduced spacing
     
-    // Certification text - compressed
+    // Certification text - compressed with amount in words
     doc.setFontSize(7); // Increased from 6
-    const certificationText = 'I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly authorised and performed and that the payment of Rupees ________________and cents _______ is in accordance with regulations*/ contract*/ fair and reasonable.';
+    
+    // Convert total amount to words
+    const totalAmountInWords = amountToWords(totalAmount);
+    const rupees = Math.floor(totalAmount);
+    const cents = Math.round((totalAmount - rupees) * 100);
+    const rupeesInWords = numberToWords(rupees);
+    const centsInWords = cents > 0 ? numberToWords(cents) : 'Zero';
+    
+    const certificationText = `I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly authorised and performed and that the payment of Rupees ${rupeesInWords} and cents ${centsInWords} is in accordance with regulations*/ contract*/ fair and reasonable.`;
     
     const certificationLines = wrapText(doc, certificationText, usableWidth, 7);
     let certY = currentY;
-    certificationLines.slice(0, 2).forEach(line => { // Limit to 2 lines
+    certificationLines.slice(0, 3).forEach(line => { // Allow 3 lines for longer text
         doc.text(line, margin, certY);
         certY += 3;
     });
     
-    currentY += 8; // Reduced spacing
+    currentY += 12; // Increased spacing to accommodate longer text
     
     // Final approval section - compact
     const finalApprovalHeight = 22; // Reduced from 35
