@@ -1532,6 +1532,32 @@ function amountToWords(amount) {
     return result;
 }
 
+// Helper function to format numbers with space as thousand separator
+function formatNumberWithSpaces(number, forceDecimals = true) {
+    if (number === null || number === undefined || isNaN(number)) return forceDecimals ? '0.00' : '0';
+    
+    const num = parseFloat(number);
+    
+    // For units/quantities, check if it's a whole number and don't force decimals
+    let numStr;
+    if (forceDecimals || num % 1 !== 0) {
+        numStr = num.toFixed(2);
+    } else {
+        numStr = num.toString();
+    }
+    
+    // Split into integer and decimal parts
+    const parts = numStr.split('.');
+    const integerPart = parts[0];
+    const decimalPart = parts[1];
+    
+    // Add spaces every 3 digits from right to left in integer part
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    
+    // Combine with decimal part if it exists
+    return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
+}
+
 // Helper function to truncate text to fit within specified width
 function truncateText(doc, text, maxWidth, fontSize = 11) {
     if (!text) return '';
@@ -1858,9 +1884,14 @@ function generatePDFDocument(jsPDF) {
                 const displayDesc = truncateText(doc, exp.desc, col1Width - 4, 8);
                 doc.text(displayDesc, margin + 2, rowY);
                 
-                const rateText = truncateText(doc, exp.rate || '0', col2Width - 4, 8);
-                const unitsText = truncateText(doc, exp.units || '0', col3Width - 4, 8);
-                const amountText = truncateText(doc, exp.amount || '0', col4Width - 4, 8);
+                // Format numerical values with spaces
+                const rateFormatted = formatNumberWithSpaces(exp.rate || 0, true);  // Always show decimals for rates
+                const unitsFormatted = formatNumberWithSpaces(exp.units || 0, false); // Smart formatting for units
+                const amountFormatted = formatNumberWithSpaces(exp.amount || 0, true); // Always show decimals for amounts
+                
+                const rateText = truncateText(doc, rateFormatted, col2Width - 4, 8);
+                const unitsText = truncateText(doc, unitsFormatted, col3Width - 4, 8);
+                const amountText = truncateText(doc, amountFormatted, col4Width - 4, 8);
                 
                 // Right-align numerical values
                 doc.text(rateText, margin + col1Width + col2Width - 2, rowY, { align: 'right' });
@@ -1889,6 +1920,12 @@ function generatePDFDocument(jsPDF) {
     console.log('PDF Generation - Tax Breakdown:', {
         subtotal, ssclVat, vat, ssclAmount, vatAmount, totalAmount
     });
+    console.log('PDF Generation - Formatted Numbers:', {
+        subtotalFormatted: formatNumberWithSpaces(subtotal),
+        ssclAmountFormatted: formatNumberWithSpaces(ssclAmount),
+        vatAmountFormatted: formatNumberWithSpaces(vatAmount),
+        totalAmountFormatted: formatNumberWithSpaces(totalAmount)
+    });
     console.log('PDF Generation - Column Widths:', {
         col1Width, col2Width, col3Width, col4Width, tableWidth
     });
@@ -1911,7 +1948,7 @@ function generatePDFDocument(jsPDF) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.text('Subtotal Rs.', col1X + col1Width + col2Width - 30, subtotalRowY + 6);
-    doc.text(subtotal.toFixed(2), col4RightX, subtotalRowY + 6, { align: 'right' });
+    doc.text(formatNumberWithSpaces(subtotal), col4RightX, subtotalRowY + 6, { align: 'right' });
     
     // SSCL VAT row
     const ssclRowY = subtotalRowY + 8;
@@ -1922,8 +1959,8 @@ function generatePDFDocument(jsPDF) {
     doc.line(margin + col1Width + col2Width + col3Width, ssclRowY, margin + col1Width + col2Width + col3Width, ssclRowY + 8);
     
     doc.text('SSCL (%)', col1X, ssclRowY + 6);
-    doc.text(ssclVat.toFixed(2), col3RightX, ssclRowY + 6, { align: 'right' });
-    doc.text(ssclAmount.toFixed(2), col4RightX, ssclRowY + 6, { align: 'right' });
+    doc.text(formatNumberWithSpaces(ssclVat, false), col3RightX, ssclRowY + 6, { align: 'right' }); // Smart formatting for percentages
+    doc.text(formatNumberWithSpaces(ssclAmount, true), col4RightX, ssclRowY + 6, { align: 'right' }); // Always decimals for amounts
     
     // VAT row
     const vatRowY = ssclRowY + 8;
@@ -1935,16 +1972,16 @@ function generatePDFDocument(jsPDF) {
     
     doc.setFontSize(9);
     doc.text('VAT (%)', col1X, vatRowY + 6);
-    doc.text(vat.toFixed(2), col3RightX, vatRowY + 6, { align: 'right' });
-    doc.text(vatAmount.toFixed(2), col4RightX, vatRowY + 6, { align: 'right' });
+    doc.text(formatNumberWithSpaces(vat, false), col3RightX, vatRowY + 6, { align: 'right' }); // Smart formatting for percentages
+    doc.text(formatNumberWithSpaces(vatAmount, true), col4RightX, vatRowY + 6, { align: 'right' }); // Always decimals for amounts
     
     // Total Payment row
     const totalRowY = vatRowY + 8;
     doc.line(margin, totalRowY, margin + tableWidth, totalRowY);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.text('Total Payment ---------------- ( Rs.)', col1X + col1Width + col2Width - 30, totalRowY + 6);
-    doc.text(totalAmount.toFixed(2), col4RightX, totalRowY + 6, { align: 'right' });
+    doc.text('Total Payment -------------------- ( Rs.)', col1X + col1Width + col2Width - 30, totalRowY + 6);
+    doc.text(formatNumberWithSpaces(totalAmount), col4RightX, totalRowY + 6, { align: 'right' });
     
     currentY += tableHeight + 5; // Reduced spacing
     
@@ -1999,6 +2036,7 @@ function generatePDFDocument(jsPDF) {
     
     // Split certification text into parts for mixed formatting
     const textParts = [
+        { text: '  ', bold: false },
         { text: 'I certify from personal knowledge*/ from the certificates in the relevant files*/ that the above supplies*/ services*/ works* were duly authorised and performed and that the payment of Rupees ', bold: false },
         { text: rupeesInWords, bold: true },
         { text: ' and cents ', bold: false },
