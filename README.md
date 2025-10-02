@@ -1,69 +1,143 @@
-# SLTB Payment Voucher System
+# 🏛️ SLTB Payment Voucher System
 
-A desktop application built with Electron for managing Sri Lanka Tea Board payment vouchers.
+**Sri Lanka Tea Board Payment Voucher Desktop Application**
 
-## Features
+A professional desktop application built with Electron for managing payment vouchers, advance payments, settlements, and petty cash transactions for the Sri Lanka Tea Board.
 
-- **Multiple Voucher Types:**
-  - Payment Voucher
-  - Advance Payment Voucher
-  - Advance Payment Settlement Voucher
-  - Petty Cash Voucher
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
+![Electron](https://img.shields.io/badge/Electron-27.0.0-brightgreen)
 
-- **Key Functionality:**
-  - Form-based data entry with validation
-  - Auto-calculation of totals and taxes
-  - PDF generation for printing
-  - Data saving and loading
-  - Default settings management
-  - Professional voucher formatting
+## ✨ Features
 
-## Installation
+### 🧾 **Voucher Management**
+- **4 Voucher Types**: Payment, Advance Payment, Advance Settlement, Petty Cash
+- **Auto-Generated Numbers**: Smart voucher numbering system (PV, AP, AS, PC prefixes)
+- **Professional PDF Generation**: High-quality PDF output matching official SLTB templates
+- **Print Support**: Direct printing capabilities with proper formatting
 
-1. Clone or download this repository
-2. Install dependencies:
-   ```
-   npm install
-   ```
+### 💰 **Financial Calculations**
+- **Real-time Calculations**: Automatic subtotal, tax, and total calculations
+- **Tax Support**: SSCL and VAT percentage calculations
+- **Number Formatting**: Professional number display with space separators (e.g., 1 234 567.89)
+- **Amount in Words**: Automatic conversion to English words for certification
 
-## Usage
+### 📄 **Document Management**
+- **Document Tracking**: Checkbox system for attached documents
+- **Custom Documents**: Text area for additional document notes
+- **Approval Workflow**: Multi-level approval system (Prepared, Checked, Recommended, Approved)
+- **Compliance**: FR 137 and FR 138 regulatory compliance
+
+### 🎨 **User Experience**
+- **Modern Interface**: Clean, professional SLTB-branded design
+- **Load Defaults**: Save and load default values for faster form completion
+- **Form Validation**: Input validation and error handling
+- **Responsive Design**: Optimized for various screen sizes
+
+## 💾 Installation
+
+### Windows Installer (Recommended)
+1. Download the latest release: `SLTB Payment Voucher System Setup 1.0.0.exe` (75 MB)
+2. Run the installer as Administrator
+3. Follow the installation wizard
+4. Launch from Desktop shortcut or Start Menu
+
+### Manual Installation
+```bash
+# Clone the repository
+git clone https://github.com/NadeemalTM/SLTB-Voucher-Management-System.git
+
+# Navigate to project directory
+cd SLTB-Voucher-Management-System
+
+# Install dependencies
+npm install
+
+# Start the application
+npm start
+```
+
+## 🚀 Usage
+
+### Quick Start
+1. **Launch** the application from desktop or start menu
+2. **Select** voucher type from the main menu
+3. **Fill** in the required information
+4. **Generate** voucher number automatically
+5. **Add** expenditure details and calculations
+6. **Complete** approval workflow
+7. **Generate PDF** or print directly
 
 ### Development Mode
-```
+```bash
 npm start
 ```
 
 ### Build for Distribution
-```
-npm run build
-```
+```bash
+# Build Windows 64-bit installer
+npm run build:win64
 
-### Create Installer Package
-```
-npm run dist
+# Output: dist/SLTB Payment Voucher System Setup 1.0.0.exe
 ```
 
-## System Requirements
+## 💻 System Requirements
 
-- Node.js 16 or higher
-- Windows 10/11 (primary target)
-- 4GB RAM minimum
-- 500MB disk space
+### End Users (Windows Installer)
+- **OS**: Windows 10 (64-bit) or later
+- **RAM**: 4 GB minimum
+- **Storage**: 100 MB free space
+- **Display**: 1024x768 resolution minimum
 
-## Project Structure
+### Developers
+- **Node.js**: 16.x or later
+- **npm**: 8.x or later
+- **OS**: Windows 10/11 for building Windows installer
+- **RAM**: 8 GB recommended
+- **Storage**: 500 MB free space
+
+## 📋 Voucher Types
+
+### 1. **Payment Voucher (PV)**
+- Standard payment processing
+- Multi-line expenditure entries
+- Tax calculations (SSCL + VAT)
+- Full approval workflow
+
+### 2. **Advance Payment Voucher (AP)**
+- Advance payment requests
+- Simplified calculation structure
+- Approval tracking
+- Settlement reference capability
+
+### 3. **Advance Payment Settlement Voucher (AS)**
+- Settlement of previously issued advances
+- Balance calculations
+- Expenditure breakdown
+- Compliance documentation
+
+### 4. **Petty Cash Voucher (PC)**
+- Small expense management
+- Quick processing workflow
+- Simplified approval structure
+- Daily transaction support
+
+## 🛠️ Project Structure
 
 ```
-sltb-payment-voucher-system/
-├── main.js                 # Main Electron process
-├── package.json           # Project configuration
+SLTB-Voucher-Management-System/
 ├── src/
-│   ├── index.html         # Main UI
-│   ├── styles.css         # Application styles
-│   └── renderer.js        # Frontend logic
+│   ├── index.html          # Main HTML file
+│   ├── styles.css          # Application styles
+│   └── renderer.js         # Main application logic
 ├── assets/
-│   ├── icon.png          # App icon (placeholder)
-│   └── sltb-logo.png     # SLTB logo (placeholder)
-└── README.md
+│   ├── app-icon.ico        # Application icon
+│   ├── app-icon-*.png      # Icon variants
+│   └── sltb-logo.*         # SLTB logos
+├── main.js                 # Electron main process
+├── package.json            # Project configuration
+└── README.md               # This file
 ```
 
 ## Features Overview
@@ -166,24 +240,56 @@ sltb-payment-voucher-system/
 3. Add new CSS classes in styles.css for styling
 4. Test thoroughly before building
 
-## Version History
+## 🤝 Contributing
 
-- **v1.0.0** - Initial release
-  - All four voucher types
-  - PDF generation
-  - Data saving/loading
-  - Default settings
+We welcome contributions to improve the SLTB Payment Voucher System!
 
-## License
+### How to Contribute
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
 
-This project is developed for Sri Lanka Tea Board internal use.
+### Reporting Issues
+- Use the GitHub Issues tab
+- Provide detailed description of the problem
+- Include steps to reproduce
+- Attach screenshots if applicable
 
-## Support
+## 📄 Version History
 
-For technical support or feature requests, contact the SLTB IT Division.
+**v1.0.0** (October 2025)
+- ✅ Initial release with all 4 voucher types
+- ✅ Professional PDF generation with SLTB templates
+- ✅ Windows installer with custom icon (75 MB)
+- ✅ Number formatting with space separators
+- ✅ Amount-in-words conversion
+- ✅ Load defaults functionality
+- ✅ Complete approval workflow
+- ✅ SLTB branding integration
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+### Contact
+- **Organization**: Sri Lanka Tea Board - IT Division
+- **GitHub**: [@NadeemalTM](https://github.com/NadeemalTM)
+- **Repository**: [SLTB-Voucher-Management-System](https://github.com/NadeemalTM/SLTB-Voucher-Management-System)
+
+### Known Issues
+- GPU warnings on some Windows systems (cosmetic, doesn't affect functionality)
+- Large PDF files may take a few seconds to generate
 
 ---
 
-**Developed by Nadeemal TM - IT Division**  
-**Sri Lanka Tea Board**  
-**© 2024**
+## 🏛️ About Sri Lanka Tea Board
+
+The Sri Lanka Tea Board is the apex body for the tea industry in Sri Lanka, established under the Sri Lanka Tea Board Law No. 14 of 1975. This application supports the board's financial management and administrative processes.
+
+**Built with ❤️ for Sri Lanka Tea Board**
+
+*© 2025 Sri Lanka Tea Board. All rights reserved.*
