@@ -292,6 +292,7 @@ function generatePaymentVoucherForm() {
                     <label for="sltb-section">SLTB Section:</label>
                     <select id="sltb-section" name="sltbSection" required>
                         <option value="">Select Section</option>
+                        <option value="Procurement">Procurement</option>
                         <option value="Admin">Admin</option>
                         <option value="IT Section">IT Section</option>
                         <option value="Export">Export</option>
@@ -467,6 +468,7 @@ function generateAdvancePaymentVoucherForm() {
                     <label for="sltb-section">SLTB Section:</label>
                     <select id="sltb-section" name="sltbSection" required>
                         <option value="">Select Section</option>
+                        <option value="Procurement">Procurement</option>
                         <option value="Admin">Admin</option>
                         <option value="IT Section">IT Section</option>
                         <option value="Export">Export</option>
@@ -616,7 +618,7 @@ function generateAdvancePaymentVoucherForm() {
     </div>`;
 }
 
-// Generate Advance Settlement Voucher Form
+// Generate Advance Settlement Voucher Form - Updated with Procurement
 function generateAdvanceSettlementVoucherForm() {
     return `
     <div class="page active voucher-form" id="advance-settlement-voucher-form">
@@ -642,6 +644,7 @@ function generateAdvanceSettlementVoucherForm() {
                     <label for="sltb-section">SLTB Section:</label>
                     <select id="sltb-section" name="sltbSection" required>
                         <option value="">Select Section</option>
+                        <option value="Procurement">Procurement</option>
                         <option value="Admin">Admin</option>
                         <option value="IT Section">IT Section</option>
                         <option value="Export">Export</option>
@@ -817,6 +820,7 @@ function generatePettyCashVoucherForm() {
                     <label for="sltb-section">SLTB Section:</label>
                     <select id="sltb-section" name="sltbSection" required>
                         <option value="">Select Section</option>
+                        <option value="Procurement">Procurement</option>
                         <option value="Admin">Admin</option>
                         <option value="IT Section">IT Section</option>
                         <option value="Export">Export</option>

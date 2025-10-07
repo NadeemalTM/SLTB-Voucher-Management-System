@@ -81,6 +81,24 @@
                             <small class="help-text">This will auto-fill the File Reference field in all voucher forms</small>
                         </div>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="default-sltb-section">SLTB Section:</label>
+                            <select id="default-sltb-section" name="sltbSection" style="width: 400px;">
+                                <option value="">Select Default Section</option>
+                                <option value="Admin">Admin</option>
+                                <option value="IT Section">IT Section</option>
+                                <option value="Export">Export</option>
+                                <option value="TC">TC</option>
+                                <option value="Promotion">Promotion</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Tea Testing Unit">Tea Testing Unit</option>
+                                <option value="Audit">Audit</option>
+                                <option value="Procurement">Procurement</option>
+                            </select>
+                            <small class="help-text">This will auto-fill the SLTB Section field in all voucher forms</small>
+                        </div>
+                    </div>
 
                     <div class="button-group">
                         <button type="button" class="btn btn-success" onclick="saveDefaults()">Save Default</button>
