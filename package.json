@@ -1,6 +1,6 @@
 {
   "name": "sltb-payment-voucher-system",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Sri Lanka Tea Board Payment Voucher Desktop Application",
   "main": "main.js",
   "scripts": {
@@ -29,7 +29,7 @@
   },
   "build": {
     "appId": "com.sltb.paymentvoucher",
-    "productName": "SLTB Payment Voucher System",
+    "productName": "SLTB Payment Voucher System v1.0.3",
     "copyright": "Copyright © 2025 Sri Lanka Tea Board",
     "icon": "assets/app-icon-256.png",
     "directories": {
@@ -70,7 +70,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "SLTB Payment Voucher System",
+      "shortcutName": "SLTB Payment Voucher System v1.0.3",
       "include": "build/installer.nsh"
     }
   }
