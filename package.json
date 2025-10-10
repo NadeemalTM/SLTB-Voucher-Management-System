@@ -8,17 +8,19 @@
     "dev": "electron . --debug",
     "build": "electron-builder",
     "build:win": "electron-builder --win",
+    "build:win32": "electron-builder --win --ia32",
     "build:win64": "electron-builder --win --x64",
-    "dist": "npm run build:win64",
+    "build:all": "electron-builder --win --x64 --ia32",
+    "dist": "npm run build:all",
     "pack": "electron-builder --dir",
-    "installer": "npm run build:win64",
-    "release": "npm run build:win64"
+    "installer": "npm run build:all",
+    "release": "npm run build:all"
   },
   "author": "SLTB IT Division",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^27.0.0",
-    "electron-builder": "^26.0.12",
+    "electron": "^22.3.27",
+    "electron-builder": "^24.13.3",
     "png-to-ico": "^3.0.1",
     "to-ico": "^1.1.5"
   },
@@ -57,11 +59,14 @@
         {
           "target": "nsis",
           "arch": [
-            "x64"
+            "x64",
+            "ia32"
           ]
         }
       ],
-      "verifyUpdateCodeSignature": false
+      "verifyUpdateCodeSignature": false,
+      "requestedExecutionLevel": "asInvoker",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -71,7 +76,10 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "SLTB Payment Voucher System v1.0.3",
-      "include": "build/installer.nsh"
+      "include": "build/installer.nsh",
+      "warningsAsErrors": false,
+      "unicode": true,
+      "guid": "sltb-payment-voucher-system"
     }
   }
 }

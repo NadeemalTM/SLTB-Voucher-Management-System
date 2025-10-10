@@ -447,7 +447,6 @@ function generatePaymentVoucherForm() {
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
-            <button type="button" class="btn btn-info" onclick="printVoucher()">Print</button>
         </div>
     </div>`;
 }
@@ -633,7 +632,6 @@ function generateAdvancePaymentVoucherForm() {
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
-            <button type="button" class="btn btn-info" onclick="printVoucher()">Print</button>
         </div>
     </div>`;
 }
@@ -819,7 +817,6 @@ function generateAdvanceSettlementVoucherForm() {
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
-            <button type="button" class="btn btn-info" onclick="printVoucher()">Print</button>
         </div>
     </div>`;
 }
@@ -1005,7 +1002,6 @@ function generatePettyCashVoucherForm() {
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
-            <button type="button" class="btn btn-info" onclick="printVoucher()">Print</button>
         </div>
     </div>`;
 }
@@ -2273,34 +2269,52 @@ async function printVoucher() {
             return;
         }
 
-        // Create a blob from the PDF
-        const pdfBlob = doc.output('blob');
-        
-        // Create a URL for the blob
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        
-        // Open PDF in a new window for printing
-        const printWindow = window.open(pdfUrl, '_blank');
-        
-        if (printWindow) {
-            // Wait for the PDF to load, then trigger print
-            printWindow.onload = function() {
-                printWindow.print();
-                
-                // Clean up the object URL after a delay
-                setTimeout(() => {
-                    URL.revokeObjectURL(pdfUrl);
-                    printWindow.close();
-                }, 1000);
-            };
-        } else {
-            // Fallback: download the PDF if popup is blocked
-            const link = document.createElement('a');
-            link.href = pdfUrl;
-            link.download = `SLTB_${currentVoucherType}_voucher_${Date.now()}.pdf`;
-            link.click();
-            URL.revokeObjectURL(pdfUrl);
-            showMessage('⚠️ Popup blocked. PDF downloaded instead. Please open and print manually.', 'warning');
+        try {
+            // Find and open the latest SLTB PDF in Downloads folder
+            const os = require('os');
+            const path = require('path');
+            const fs = require('fs');
+            
+            // Get Downloads folder path
+            const downloadsPath = path.join(os.homedir(), 'Downloads');
+            
+            // Check if Downloads folder exists
+            if (!fs.existsSync(downloadsPath)) {
+                throw new Error('Downloads folder not found');
+            }
+            
+            // Get all SLTB PDF files in Downloads folder
+            const files = fs.readdirSync(downloadsPath)
+                .filter(file => file.startsWith('SLTB_') && file.endsWith('.pdf'))
+                .map(file => ({
+                    name: file,
+                    path: path.join(downloadsPath, file),
+                    stats: fs.statSync(path.join(downloadsPath, file))
+                }))
+                .sort((a, b) => b.stats.mtime - a.stats.mtime); // Sort by modification time (newest first)
+            
+            if (files.length === 0) {
+                showMessage('❌ No SLTB PDF files found in Downloads folder. Please generate a voucher first.', 'error');
+                return;
+            }
+            
+            // Get the latest PDF file
+            const latestPdf = files[0];
+            console.log(`Opening latest PDF: ${latestPdf.name}`);
+            
+            // Open the latest PDF file
+            const { shell } = require('electron');
+            shell.openPath(latestPdf.path).then(() => {
+                console.log('Latest PDF opened successfully');
+                showMessage(`✅ Opened latest PDF: ${latestPdf.name}`, 'success');
+            }).catch((error) => {
+                console.error('Error opening latest PDF:', error);
+                showMessage(`❌ Error opening PDF: ${latestPdf.name}`, 'error');
+            });
+            
+        } catch (error) {
+            console.error('Error finding latest PDF:', error);
+            showMessage('❌ Error finding latest PDF in Downloads folder: ' + error.message, 'error');
         }
         
     } catch (error) {

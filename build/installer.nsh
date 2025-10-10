@@ -3,11 +3,11 @@
 
 ; Custom installer pages
 !macro customInit
-    ; Check if running on Windows 10 or later
-    ${If} ${AtLeastWin10}
-        ; Good to go
+    ; Check if running on Windows 7 or later
+    ${If} ${AtLeastWin7}
+        ; Good to go - supports Windows 7, 8, 8.1, 10, 11
     ${Else}
-        MessageBox MB_OK|MB_ICONSTOP "This application requires Windows 10 or later to run properly."
+        MessageBox MB_OK|MB_ICONSTOP "This application requires Windows 7 or later to run properly.$\r$\n$\r$\nSupported versions: Windows 7, 8, 8.1, 10, 11"
         Quit
     ${EndIf}
 !macroend
