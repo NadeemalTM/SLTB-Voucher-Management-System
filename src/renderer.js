@@ -292,15 +292,24 @@ function generatePaymentVoucherForm() {
                     <label for="sltb-section">SLTB Section:</label>
                     <select id="sltb-section" name="sltbSection" required>
                         <option value="">Select Section</option>
-                        <option value="Procurement">Procurement</option>
                         <option value="Admin">Admin</option>
-                        <option value="IT Section">IT Section</option>
-                        <option value="Export">Export</option>
-                        <option value="TC">TC</option>
-                        <option value="Promotion">Promotion</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Tea Testing Unit">Tea Testing Unit</option>
                         <option value="Audit">Audit</option>
+                        <option value="Export">Export</option>
+                        <option value="Finance">Finance</option>
+                        <option value="IT Section">IT Section</option>
+                        <option value="Lab - CAU">Lab - CAU</option>
+                        <option value="Lab - MAU">Lab - MAU</option>
+                        <option value="Lab - PRAU">Lab - PRAU</option>
+                        <option value="Lab - QMO">Lab - QMO</option>
+                        <option value="Laboratory">Laboratory</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Procurement">Procurement</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Secretariat">Secretariat</option>
+                        <option value="Stores">Stores</option>
+                        <option value="TC">TC</option>
+                        <option value="Tea Testing Unit">Tea Testing Unit</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -434,6 +443,7 @@ function generatePaymentVoucherForm() {
         
         <div class="button-group">
             <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
+            <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
@@ -468,15 +478,24 @@ function generateAdvancePaymentVoucherForm() {
                     <label for="sltb-section">SLTB Section:</label>
                     <select id="sltb-section" name="sltbSection" required>
                         <option value="">Select Section</option>
-                        <option value="Procurement">Procurement</option>
                         <option value="Admin">Admin</option>
-                        <option value="IT Section">IT Section</option>
-                        <option value="Export">Export</option>
-                        <option value="TC">TC</option>
-                        <option value="Promotion">Promotion</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Tea Testing Unit">Tea Testing Unit</option>
                         <option value="Audit">Audit</option>
+                        <option value="Export">Export</option>
+                        <option value="Finance">Finance</option>
+                        <option value="IT Section">IT Section</option>
+                        <option value="Lab - CAU">Lab - CAU</option>
+                        <option value="Lab - MAU">Lab - MAU</option>
+                        <option value="Lab - PRAU">Lab - PRAU</option>
+                        <option value="Lab - QMO">Lab - QMO</option>
+                        <option value="Laboratory">Laboratory</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Procurement">Procurement</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Secretariat">Secretariat</option>
+                        <option value="Stores">Stores</option>
+                        <option value="TC">TC</option>
+                        <option value="Tea Testing Unit">Tea Testing Unit</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -610,6 +629,7 @@ function generateAdvancePaymentVoucherForm() {
         
         <div class="button-group">
             <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
+            <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
@@ -644,15 +664,24 @@ function generateAdvanceSettlementVoucherForm() {
                     <label for="sltb-section">SLTB Section:</label>
                     <select id="sltb-section" name="sltbSection" required>
                         <option value="">Select Section</option>
-                        <option value="Procurement">Procurement</option>
                         <option value="Admin">Admin</option>
-                        <option value="IT Section">IT Section</option>
-                        <option value="Export">Export</option>
-                        <option value="TC">TC</option>
-                        <option value="Promotion">Promotion</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Tea Testing Unit">Tea Testing Unit</option>
                         <option value="Audit">Audit</option>
+                        <option value="Export">Export</option>
+                        <option value="Finance">Finance</option>
+                        <option value="IT Section">IT Section</option>
+                        <option value="Lab - CAU">Lab - CAU</option>
+                        <option value="Lab - MAU">Lab - MAU</option>
+                        <option value="Lab - PRAU">Lab - PRAU</option>
+                        <option value="Lab - QMO">Lab - QMO</option>
+                        <option value="Laboratory">Laboratory</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Procurement">Procurement</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Secretariat">Secretariat</option>
+                        <option value="Stores">Stores</option>
+                        <option value="TC">TC</option>
+                        <option value="Tea Testing Unit">Tea Testing Unit</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -786,6 +815,7 @@ function generateAdvanceSettlementVoucherForm() {
         
         <div class="button-group">
             <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
+            <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
@@ -820,15 +850,24 @@ function generatePettyCashVoucherForm() {
                     <label for="sltb-section">SLTB Section:</label>
                     <select id="sltb-section" name="sltbSection" required>
                         <option value="">Select Section</option>
-                        <option value="Procurement">Procurement</option>
                         <option value="Admin">Admin</option>
-                        <option value="IT Section">IT Section</option>
-                        <option value="Export">Export</option>
-                        <option value="TC">TC</option>
-                        <option value="Promotion">Promotion</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Tea Testing Unit">Tea Testing Unit</option>
                         <option value="Audit">Audit</option>
+                        <option value="Export">Export</option>
+                        <option value="Finance">Finance</option>
+                        <option value="IT Section">IT Section</option>
+                        <option value="Lab - CAU">Lab - CAU</option>
+                        <option value="Lab - MAU">Lab - MAU</option>
+                        <option value="Lab - PRAU">Lab - PRAU</option>
+                        <option value="Lab - QMO">Lab - QMO</option>
+                        <option value="Laboratory">Laboratory</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Procurement">Procurement</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Secretariat">Secretariat</option>
+                        <option value="Stores">Stores</option>
+                        <option value="TC">TC</option>
+                        <option value="Tea Testing Unit">Tea Testing Unit</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -962,6 +1001,7 @@ function generatePettyCashVoucherForm() {
         
         <div class="button-group">
             <button type="button" class="btn btn-secondary" onclick="loadDefaultsToForm()">Load Defaults</button>
+            <button type="button" class="btn btn-warning" onclick="loadVoucherData()">Load Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generateVoucherNumber()">Generate Voucher Number</button>
             <button type="button" class="btn btn-success" onclick="saveVoucher()">Save Voucher</button>
             <button type="button" class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
@@ -1256,12 +1296,20 @@ async function saveVoucher() {
 // Load voucher data
 async function loadVoucherData() {
     try {
+        showMessage('Select voucher file to load...', 'info');
         const result = await ipcRenderer.invoke('load-voucher-data');
         if (result.success) {
             populateFormWithData(result.data);
-            showMessage('Voucher loaded successfully!', 'success');
+            showMessage(`Voucher loaded successfully! Type: ${result.data.type || 'Unknown'}`, 'success');
+            
+            // Recalculate totals after loading data
+            setTimeout(() => {
+                calculateTotal();
+            }, 500);
         } else {
-            showMessage(`Error loading voucher: ${result.error}`, 'error');
+            if (result.error !== 'No file selected') {
+                showMessage(`Error loading voucher: ${result.error}`, 'error');
+            }
         }
     } catch (error) {
         showMessage(`Error loading voucher: ${error.message}`, 'error');
@@ -1388,14 +1436,31 @@ function collectFormData() {
 function populateFormWithData(data) {
     // Populate basic form fields
     Object.keys(data.formData).forEach(key => {
-        const element = document.querySelector(`[name="${key}"]`);
+        // Try multiple selectors to find the element
+        let element = document.querySelector(`[name="${key}"]`);
+        if (!element) {
+            element = document.getElementById(key);
+        }
+        if (!element && key === 'sltbSection') {
+            element = document.getElementById('sltb-section');
+        }
+        if (!element && key === 'fileReference') {
+            element = document.getElementById('file-reference');
+        }
+        if (!element && key === 'voucherDate') {
+            element = document.getElementById('voucher-date');
+        }
+        if (!element && key === 'voucherNo') {
+            element = document.getElementById('voucher-no');
+        }
+        
         if (element) {
             element.value = data.formData[key];
         }
     });
     
-    // Populate expenditures for payment vouchers
-    if (data.expenditures && currentVoucherType === 'P') {
+    // Populate expenditures for all voucher types (since all now have expenditure tables)
+    if (data.expenditures && data.expenditures.length > 0) {
         // Clear existing rows
         const tbody = document.getElementById('expenditure-tbody');
         if (tbody) tbody.innerHTML = '';
@@ -1407,12 +1472,27 @@ function populateFormWithData(data) {
             const currentCount = expenditureCount;
             
             setTimeout(() => {
-                document.querySelector(`[name="expenditure-desc-${currentCount}"]`).value = exp.desc || '';
-                document.querySelector(`[name="expenditure-rate-${currentCount}"]`).value = exp.rate || '';
-                document.querySelector(`[name="expenditure-units-${currentCount}"]`).value = exp.units || '';
-                document.querySelector(`[name="expenditure-amount-${currentCount}"]`).value = exp.amount || '';
+                const descField = document.querySelector(`[name="expenditure-desc-${currentCount}"]`);
+                const rateField = document.querySelector(`[name="expenditure-rate-${currentCount}"]`);
+                const unitsField = document.querySelector(`[name="expenditure-units-${currentCount}"]`);
+                const amountField = document.querySelector(`[name="expenditure-amount-${currentCount}"]`);
+                
+                if (descField) descField.value = exp.desc || '';
+                if (rateField) rateField.value = exp.rate || '';
+                if (unitsField) unitsField.value = exp.units || '';
+                if (amountField) amountField.value = exp.amount || '';
             }, 100);
         });
+    }
+    
+    // Populate tax values
+    if (data.ssclVat) {
+        const ssclInput = document.getElementById('sscl-vat');
+        if (ssclInput) ssclInput.value = data.ssclVat;
+    }
+    if (data.vat) {
+        const vatInput = document.getElementById('vat');
+        if (vatInput) vatInput.value = data.vat;
     }
     
     // Populate document checkboxes
